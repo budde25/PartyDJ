@@ -1,6 +1,6 @@
 # spotify_queue
 
-A party song queuing app
+A party song queing app
 
 ## Getting Started
 
