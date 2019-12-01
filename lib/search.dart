@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart' as prefix0;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spotify_queue/queue.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'spotifyApi.dart';
-import 'main.dart';
 import 'platform.dart';
+
 
 class Search extends StatefulWidget {
   @override
@@ -37,8 +40,11 @@ class _SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Center(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Search'),
+      ),
+      body: Center(
         child: Column(
           children: <Widget>[
             TextField(
@@ -57,7 +63,9 @@ class _SearchState extends State<Search> {
                     return ListTile(
                       title: Text (results[index].name),
                       subtitle: Text (results[index].artist),
-                      onTap: () {play(results[index].track);},
+                      onTap: () { _addSong(results[index].name, results[index].artist, results[index].track);
+                        // songs.add(results[index]);
+                        },
                     );
                   }),
             )
@@ -100,6 +108,12 @@ class _SearchState extends State<Search> {
 
   void _loadToken() async {
     token = await getToken();
+  }
+
+  _addSong(String name, String artist, String track) {
+    prefix0.Firestore.instance.collection(queueId).document(track)
+    Firestore.instance.collection(queueId).document(track)
+        .setData({ 'name': name, 'artist': artist, 'track': track });
   }
 
 

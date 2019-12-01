@@ -39,7 +39,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "dev.budde.spotify_queue"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -69,8 +69,13 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
+    // Firestore analytics
+    implementation 'com.google.firebase:firebase-analytics:17.2.0'
+
     // Spotify dependencies
     implementation project(':spotify-app-remote')
     implementation project(':spotify-auth')
     implementation "com.google.code.gson:gson:2.8.5"
 }
+
+apply plugin: 'com.google.gms.google-services'

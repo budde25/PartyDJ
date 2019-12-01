@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:spotify_queue/queue.dart';
 import 'package:spotify_queue/search.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'platform.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Spotify Queue'),
     );
   }
 
@@ -96,19 +97,19 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-            FlatButton(
-              child: Text('search'),
+
+            MaterialButton(
+              child: Text('Make queue'),
               onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (BuildContext context) => Search())),
-            )
+                  MaterialPageRoute(builder: (BuildContext context) => Queue())),
+            ),
+            MaterialButton(
+              child: Text('Join queue'),
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (BuildContext context) => Queue())),
+            ),
           ],
         ),
       ),
