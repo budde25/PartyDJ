@@ -38,6 +38,8 @@ public class MainActivity extends FlutterActivity {
         super.onCreate(savedInstanceState);
         GeneratedPluginRegistrant.registerWith(this);
 
+        login();
+
         new MethodChannel(getFlutterView(), CHANNEL).setMethodCallHandler(
                 (call, result) -> {
                     // Note: this method is invoked on the main thread.
@@ -78,7 +80,7 @@ public class MainActivity extends FlutterActivity {
                     @Override
                     public void onFailure(Throwable throwable) {
                         Log.e("MainActivity", throwable.getMessage(), throwable);
-                        login();
+                        //login();
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
@@ -115,6 +117,7 @@ public class MainActivity extends FlutterActivity {
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             userToken = response.getAccessToken();
+            Log.d("Token", userToken);
             switch (response.getType()) {
                 // Response was successful and contains auth token
                 case TOKEN:
@@ -136,6 +139,7 @@ public class MainActivity extends FlutterActivity {
 
     private void connected(){
 
+        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
 
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
@@ -145,7 +149,6 @@ public class MainActivity extends FlutterActivity {
                         Log.d("MainActivity", track.name + " by " + track.artist.name);
                     }
                 });
-
 
     }
 

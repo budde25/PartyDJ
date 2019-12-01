@@ -10,5 +10,14 @@ Future<String> getToken() async {
   } on PlatformException catch (e) {
     print(e.message);
   }
+  print(token);
   return token;
+}
+
+void play(String track) async {
+  try {
+    platform.invokeMethod('play', <String, String> {'track':track});
+  } on PlatformException catch (e) {
+    print(e.message);
+  }
 }

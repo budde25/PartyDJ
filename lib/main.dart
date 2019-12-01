@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:spotify_queue/search.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'platform.dart';
@@ -62,12 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
-  void initState() {
-    _loadToken();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -125,14 +120,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> _loadToken() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = await getToken();
-    if (token != null) {
-      prefs.setString('token', token);
-    }
-    //print(prefs.getString('token'));
-  }
+
+
 
 
 

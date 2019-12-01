@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'spotifyApi.dart';
+import 'main.dart';
+import 'platform.dart';
 
 class Search extends StatefulWidget {
   @override
   _SearchState createState() => _SearchState();
 }
+
+String token;
 
 class Song {
   String name;
@@ -23,6 +27,13 @@ class _SearchState extends State<Search> {
 
   TextEditingController search = new TextEditingController();
   List<Song> results = new List();
+  String lastSearch;
+
+  @override
+  void initState() {
+    _loadToken();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +47,7 @@ class _SearchState extends State<Search> {
                 labelText: 'Search for songs'
               ),
               onSubmitted: _update(search.text),
+              controller: search,
               autocorrect: true,
             ),
             Expanded(
@@ -45,6 +57,7 @@ class _SearchState extends State<Search> {
                     return ListTile(
                       title: Text (results[index].name),
                       subtitle: Text (results[index].artist),
+                      onTap: () {play(results[index].track);},
                     );
                   }),
             )
@@ -59,18 +72,34 @@ class _SearchState extends State<Search> {
   }
 
   Future<void> _search(String query) async {
-    String token = await _getToken();
+    if (query == null || query == '' || query == lastSearch)
+      return;
+
+    lastSearch = query;
+    results = new List();
+
     Map search = await getSearchResults(query, token);
-    for (int i = 0; i < search.length; i++) {
-      results.add(
-          new Song(search['items']['name'],
-              search['items']['artist'], search['items']['uri']));
-    }
+    List list = search['items'];
+
+    setState(() {
+      for (int i = 0; i < list.length; i++) {
+        String name = list[i]['name'];
+        String artist = list[i]['artists'][0]['name'];
+        String uri = list[i]['uri'];
+
+        results.add(new Song(name, artist, uri));
+      }
+    });
+
   }
   
   Future<String> _getToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
+  }
+
+  void _loadToken() async {
+    token = await getToken();
   }
 
 
