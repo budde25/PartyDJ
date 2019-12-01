@@ -111,7 +111,7 @@ class _SearchState extends State<Search> {
   }
 
   _addSong(String name, String artist, String track) {
-    prefix0.Firestore.instance.collection(queueId).document(track)
+    prefix0.Firestore.instance.collection(queueId).document(track);
     Firestore.instance.collection(queueId).document(track)
         .setData({ 'name': name, 'artist': artist, 'track': track });
   }
