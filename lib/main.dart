@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:spotify_queue/queue.dart';
-import 'package:spotify_queue/search.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'platform.dart';
 
 void main() => runApp(MyApp());
 
@@ -102,28 +98,58 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('Make queue'),
               onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (BuildContext context) => Queue())),
+                  MaterialPageRoute(builder: (BuildContext context) => Queue(null))),
             ),
             MaterialButton(
               child: Text('Join queue'),
-              onPressed: () => Navigator.push(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) => _buildDialog(context),
+                );
+              }
+
+              /*=> Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (BuildContext context) => Queue())),
+                  MaterialPageRoute(builder: (BuildContext context) => Queue())),*/
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }
 
 
-
-
-
-
+  Widget _buildDialog(BuildContext context) {
+    TextEditingController code = new TextEditingController();
+    return new AlertDialog(
+      title: const Text('Enter Room Code'),
+      content: new Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          TextField(
+            decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Room Code'
+            ),
+            controller: code,
+            autocorrect: true,
+          )
+        ],
+      ),
+      actions: <Widget>[
+        new MaterialButton(
+          onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => Queue(code.text)));
+          },
+          textColor: Theme.of(context).primaryColor,
+          child: const Text('Submit'),
+        ),
+      ],
+    );
+  }
 }

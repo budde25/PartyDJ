@@ -27,6 +27,7 @@ public class MainActivity extends FlutterActivity {
     private static final String REDIRECT_URI = "dev.budde.spotifyqueue://callback";
     private SpotifyAppRemote mSpotifyAppRemote;
     private String userToken;
+    private String username;
 
     private static final int REQUEST_CODE = 1337;
 
@@ -49,6 +50,9 @@ public class MainActivity extends FlutterActivity {
                             break;
                         case ("token"):
                             result.success(userToken);
+                            break;
+                        case ("user"):
+                            result.success(username);
                             break;
                     }
                 });
@@ -139,9 +143,8 @@ public class MainActivity extends FlutterActivity {
 
     private void connected(){
 
-        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
 
-        mSpotifyAppRemote.getPlayerApi()
+        /*mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
                 .setEventCallback(playerState -> {
                     final Track track = playerState.track;
@@ -149,7 +152,7 @@ public class MainActivity extends FlutterActivity {
                         Log.d("MainActivity", track.name + " by " + track.artist.name);
                     }
                 });
-
+*/
     }
 
 

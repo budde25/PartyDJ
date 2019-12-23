@@ -1,9 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart' as prefix0;
+
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotify_queue/queue.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'spotifyApi.dart';
+import 'firebase.dart' as fs;
 import 'platform.dart';
 
 
@@ -63,7 +62,7 @@ class _SearchState extends State<Search> {
                     return ListTile(
                       title: Text (results[index].name),
                       subtitle: Text (results[index].artist),
-                      onTap: () { _addSong(results[index].name, results[index].artist, results[index].track);
+                      onTap: () { fs.addSong(queueId, results[index].name, results[index].artist, results[index].track);
                         // songs.add(results[index]);
                         },
                     );
@@ -100,21 +99,9 @@ class _SearchState extends State<Search> {
     });
 
   }
-  
-  Future<String> _getToken() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
 
   void _loadToken() async {
     token = await getToken();
   }
-
-  _addSong(String name, String artist, String track) {
-    prefix0.Firestore.instance.collection(queueId).document(track);
-    Firestore.instance.collection(queueId).document(track)
-        .setData({ 'name': name, 'artist': artist, 'track': track });
-  }
-
 
 }

@@ -1,17 +1,27 @@
-import 'dart:collection' as prefix0;
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'search.dart';
 import 'platform.dart';
 
+import 'firebase.dart' as fs;
+
+String queueId;
+List songs = new List();
+
 class Queue extends StatefulWidget {
   @override
   _QueueState createState() => _QueueState();
-}
 
-String queueId = '1';
-prefix0.Queue<Song> songs = new prefix0.Queue();
+  Queue(String id) {
+    if (id != null) {
+      queueId = id;
+    } else {
+      queueId = fs.generateRoom(6);
+    }
+  }
+}
 
 class _QueueState extends State<Queue> {
   @override
@@ -19,6 +29,17 @@ class _QueueState extends State<Queue> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Song Queue'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) => _buildDialog(context),
+                );
+              },
+            )
+          ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => Navigator.push(
@@ -39,15 +60,16 @@ class _QueueState extends State<Queue> {
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
                           return Text('Retriving Queue');
-                        default: return ListView(
-                            children: snapshot.data.documents.map((DocumentSnapshot document) {
+                        default:
+                          return ListView(
+                            children: songs = snapshot.data.documents.map((DocumentSnapshot document) {
                               return ListTile (
                                 title: Text(document['name']),
                                 subtitle: Text(document['artist']),
                                 onTap: () {play(document['track']);},
                                 trailing: IconButton(
                                   icon: Icon(Icons.delete),
-                                  onPressed: () => _removeSong(document['track']),
+                                  onPressed: () => fs.removeSong(queueId, document.documentID),
                                 ),
                               );
                             }).toList(),
@@ -62,7 +84,20 @@ class _QueueState extends State<Queue> {
     );
   }
 
-  _removeSong(String track) {
-    Firestore.instance.collection(queueId).document(track).delete();
+  Widget _buildDialog(BuildContext context) {
+    TextEditingController code = new TextEditingController();
+    return new AlertDialog(
+      title: const Text('Room Code'),
+      content: new Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(queueId)
+        ],
+      ),
+      actions: <Widget>[
+
+      ],
+    );
   }
 }
