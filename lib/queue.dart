@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'search.dart';
@@ -8,7 +6,7 @@ import 'platform.dart';
 import 'firebase.dart' as fs;
 
 String queueId;
-List songs = new List();
+List<Song> songs = new List();
 
 class Queue extends StatefulWidget {
   @override
@@ -24,6 +22,12 @@ class Queue extends StatefulWidget {
 }
 
 class _QueueState extends State<Queue> {
+  @override
+  void initState() {
+    super.initState();
+    platform.setMethodCallHandler(methodCallHandler);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,11 +66,11 @@ class _QueueState extends State<Queue> {
                           return Text('Retriving Queue');
                         default:
                           return ListView(
-                            children: songs = snapshot.data.documents.map((DocumentSnapshot document) {
-                              return ListTile (
+                            children: snapshot.data.documents.map((DocumentSnapshot document) {
+                              return ListTile(
                                 title: Text(document['name']),
                                 subtitle: Text(document['artist']),
-                                onTap: () {play(document['track']);},
+                                onTap: () => play(document['track']),
                                 trailing: IconButton(
                                   icon: Icon(Icons.delete),
                                   onPressed: () => fs.removeSong(queueId, document.documentID),
@@ -96,7 +100,6 @@ class _QueueState extends State<Queue> {
         ],
       ),
       actions: <Widget>[
-
       ],
     );
   }

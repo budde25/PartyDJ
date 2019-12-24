@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'firebase.dart';
 
 const MethodChannel platform = MethodChannel('dev.budde.spotify_queue');
 
@@ -20,4 +20,16 @@ void play(String track) async {
   } on PlatformException catch (e) {
     print(e.message);
   }
+}
+
+Future<void> methodCallHandler(MethodCall call) {
+  print("gotem" + call.method);
+  final String argument = call.arguments;
+  if (call.method == "trackEnd"){
+    playNextSong();
+    print('Song Ended');
+  } else {
+    print('Error unknown: ${call.method}');
+  }
+
 }

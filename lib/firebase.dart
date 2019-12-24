@@ -1,6 +1,10 @@
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:spotify_queue/platform.dart';
+
+import 'search.dart';
+import 'queue.dart';
 
 void removeSong(String queue, String track) {
   Firestore.instance.collection(queue).document(track).delete();
@@ -27,4 +31,10 @@ String generateRoom(int length) {
 
 int _getTime() {
   return DateTime.now().millisecondsSinceEpoch;
+}
+
+void playNextSong() {
+  ListTile song = songs[0];
+  removeSong(queueId, song.title.toString());
+  play();
 }
