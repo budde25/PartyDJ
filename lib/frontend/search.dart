@@ -13,12 +13,12 @@ class Search extends StatefulWidget {
 }
 
 String token;
+String lastSearch;
 
 class _SearchState extends State<Search> {
 
-  TextEditingController search = new TextEditingController();
+  final TextEditingController searchController = new TextEditingController();
   List<Song> results = new List();
-  String lastSearch;
 
   @override
   void initState() {
@@ -35,13 +35,13 @@ class _SearchState extends State<Search> {
       body: Center(
         child: Column(
           children: <Widget>[
-            TextField(
+            new TextField(
+              controller: searchController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Search for songs'
               ),
-              onSubmitted: _update(search.text),
-              controller: search,
+              onSubmitted: (search) => _search(search),
               autocorrect: true,
             ),
             Expanded(
@@ -52,7 +52,6 @@ class _SearchState extends State<Search> {
                       title: Text (results[index].name),
                       subtitle: Text (results[index].artist),
                       onTap: () { fs.addSong(queueId, results[index].name, results[index].artist, results[index].uri);
-                        // songs.add(results[index]);
                         },
                     );
                   }),
@@ -63,11 +62,7 @@ class _SearchState extends State<Search> {
     );
   }
 
-  _update(String text) {
-    _search(text);
-  }
-
-  Future<void> _search(String query) async {
+  _search(String query) async {
     if (query == null || query == '' || query == lastSearch)
       return;
 

@@ -20,7 +20,7 @@ Future<Map<String, dynamic>> getSearchResults(String query, String token) async 
       throw 'Invalid Response';
     }
     return map;
-  }).catchError((Object error) => <String, dynamic>{'Search error': 'Unable to retrieve results \n $error'});
+  }).catchError((Object error) => print(error)) ;
 }
 
 Future<Map<String, dynamic>> getUserData(String authToken) async {
