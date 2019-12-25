@@ -57,7 +57,10 @@ class _QueueState extends State<Queue> {
         ),
         body: Center(
           child: Column(
-            children: <Widget>[
+            children: <Widget> [
+              ListView(
+
+              ),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                     stream: Firestore.instance.collection(queueId).snapshots(),

@@ -158,6 +158,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private void waitToEnd(Track track, long timeLeft, boolean isPaused) {
+        Log.d("waitToEnd", timeLeft + "" + isPaused);
         handler.removeCallbacksAndMessages(null);
         if (!isPaused) {
             handler.postDelayed(new Runnable() {

@@ -1,4 +1,5 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:spotify_queue/frontend/queue.dart';
 import '../backend/spotify.dart';
@@ -33,30 +34,33 @@ class _SearchState extends State<Search> {
         title: Text('Search'),
       ),
       body: Center(
-        child: Column(
-          children: <Widget>[
-            new TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Search for songs'
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            children: <Widget>[
+              new TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Search for songs'
+                ),
+                onSubmitted: (search) => _search(search),
+                autocorrect: true,
               ),
-              onSubmitted: (search) => _search(search),
-              autocorrect: true,
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: results.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      title: Text (results[index].name),
-                      subtitle: Text (results[index].artist),
-                      onTap: () { fs.addSong(queueId, results[index].name, results[index].artist, results[index].uri);
-                        },
-                    );
-                  }),
-            )
-          ],
+              Expanded(
+                child: ListView.builder(
+                  itemCount: results.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text (results[index].name),
+                        subtitle: Text (results[index].artist),
+                        onTap: () { fs.addSong(queueId, results[index].name, results[index].artist, results[index].uri);
+                          },
+                      );
+                    }),
+              )
+            ],
+          ),
         ),
       )
     );
