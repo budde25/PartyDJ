@@ -15,8 +15,10 @@ void addSong(String queue, String name, String artist, String track) {
 }
 
 void playNextSong() {
+  print(songs);
   Song song = getNextSong();
   play(song.uri);
   removeSong(queueId, song.id.toString());
   songs.remove(song);
+  print(songs);
 }

@@ -10,6 +10,8 @@ import '../backend/firestore.dart';
 String queueId;
 List<Song> songs;
 
+Song currentSong;
+
 class Queue extends StatefulWidget {
   @override
   _QueueState createState() => _QueueState();
@@ -58,8 +60,22 @@ class _QueueState extends State<Queue> {
         body: Center(
           child: Column(
             children: <Widget> [
-              ListView(
-
+              ListTile(
+                title: Text(currentSong == null ? 'No song playing' : currentSong.name),
+                subtitle: Text(currentSong == null ? '' : currentSong.artist),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.play_arrow),
+                      onPressed: () => null,
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.skip_next),
+                      onPressed: () => null,
+                    )
+                  ],
+                ),
               ),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(

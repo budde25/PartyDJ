@@ -1,4 +1,6 @@
 import 'package:flutter/services.dart';
+import 'package:spotify_queue/backend/song.dart';
+import 'package:spotify_queue/frontend/queue.dart';
 
 import '../backend/firestore.dart';
 
@@ -24,8 +26,18 @@ void play(String track) async {
 }
 
 Future<void> methodCallHandler(MethodCall call) {
-  print("gotem" + call.method);
-  final String argument = call.arguments;
+  switch(call.method) {
+    case "trackEnd":
+      playNextSong();
+      print('Song Ended');
+      break;
+    case "song":
+      List<String> args = call.arguments;
+      currentSong = new Song(args[0], args[1], args[2]);
+      break;
+    default:
+      print('Error: unexpected methodcall');
+  }
   if (call.method == "trackEnd"){
     playNextSong();
     print('Song Ended');
