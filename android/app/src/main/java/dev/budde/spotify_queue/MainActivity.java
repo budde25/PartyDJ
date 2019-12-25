@@ -170,7 +170,6 @@ public class MainActivity extends FlutterActivity {
                 }
             }, timeLeft - 1000);
         }
-
     }
 
 

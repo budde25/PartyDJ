@@ -8,7 +8,7 @@ import '../backend/utils.dart';
 import '../backend/firestore.dart';
 
 String queueId;
-Song nextSong;
+List<Song> songs;
 
 class Queue extends StatefulWidget {
   @override
@@ -20,6 +20,7 @@ class Queue extends StatefulWidget {
     } else {
       queueId = generateCode(6);
     }
+    songs = new List();
   }
 }
 
@@ -69,11 +70,17 @@ class _QueueState extends State<Queue> {
                         default:
                           return ListView(
                             children: snapshot.data.documents.map((DocumentSnapshot document) {
-                              if (nextSong == null || nextSong.id > int.parse(document.documentID)){
-                                nextSong = new Song(document['name'], document['artist'], document['track']);
-                                nextSong.id = int.parse(document.documentID);
-                                print(nextSong.name);
+                              // Adding to the array
+                              String name = document['name'];
+                              String artist = document['artist'];
+                              String track = document['track'];
+                              int id = int.parse(document.documentID);
+                              Song song = new Song(name, artist, track);
+                              song.id = id;
+                              if (!songs.contains(song)) {
+                                songs.add(song);
                               }
+
                               return ListTile(
                                 title: Text(document['name']),
                                 subtitle: Text(document['artist']),
@@ -109,4 +116,14 @@ class _QueueState extends State<Queue> {
       ],
     );
   }
+}
+
+Song getNextSong() {
+  Song min = songs[0];
+  for (Song song in songs){
+    if (song.id < min.id) {
+      min = song;
+    }
+  }
+  return min;
 }

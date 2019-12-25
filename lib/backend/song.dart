@@ -10,4 +10,7 @@ class Song {
     this.artist = artist;
     this.uri = track;
   }
+
+  bool operator ==(o) => o is Song && o.name == name && o.uri == uri;
+  int get hashCode => uri.hashCode;
 }

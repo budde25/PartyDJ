@@ -15,7 +15,7 @@ Future<Map<String, dynamic>> getSearchResults(String query, String token) async 
   return client.get('https://api.spotify.com/v1/search?q=' + query + '&type=track&market=US', headers: authHeaders(token))
       .then<Map<String, dynamic>>((Response response) {
     if (response.body != '' && response.statusCode == 200) {
-      Map<String, dynamic> map = json.decode(response.body)['tracks'];
+      map = json.decode(response.body)['tracks'];
     } else {
       throw 'Invalid Response';
     }
