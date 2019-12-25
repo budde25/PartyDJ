@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../search.dart';
+import 'search.dart';
 import '../backend/platform.dart';
 import '../backend/song.dart';
 import '../backend/utils.dart';
 import '../backend/firestore.dart';
 
 String queueId;
-List<Song> songs = new List();
+Song nextSong;
 
 class Queue extends StatefulWidget {
   @override
@@ -69,6 +69,11 @@ class _QueueState extends State<Queue> {
                         default:
                           return ListView(
                             children: snapshot.data.documents.map((DocumentSnapshot document) {
+                              if (nextSong == null || nextSong.id > int.parse(document.documentID)){
+                                nextSong = new Song(document['name'], document['artist'], document['track']);
+                                nextSong.id = int.parse(document.documentID);
+                                print(nextSong.name);
+                              }
                               return ListTile(
                                 title: Text(document['name']),
                                 subtitle: Text(document['artist']),

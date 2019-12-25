@@ -14,7 +14,6 @@ String generateCode(int length) {
   return room;
 }
 
-
 int getTime() {
   return DateTime.now().millisecondsSinceEpoch;
 }

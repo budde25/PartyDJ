@@ -1,5 +1,7 @@
 import 'package:flutter/services.dart';
 
+import '../backend/firestore.dart';
+
 const MethodChannel platform = MethodChannel('dev.budde.spotify_queue');
 
 Future<String> getToken() async {
@@ -25,7 +27,7 @@ Future<void> methodCallHandler(MethodCall call) {
   print("gotem" + call.method);
   final String argument = call.arguments;
   if (call.method == "trackEnd"){
-    //playNextSong();
+    playNextSong();
     print('Song Ended');
   } else {
     print('Error unknown: ${call.method}');

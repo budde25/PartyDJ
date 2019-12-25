@@ -143,11 +143,7 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
-
     private void connected(){
-        //mSpotifyAppRemote.getPlayerApi().setRepeat(Repeat.OFF);
-        //mSpotifyAppRemote.getPlayerApi().setShuffle(false);
-
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
                 .setEventCallback(playerState -> {

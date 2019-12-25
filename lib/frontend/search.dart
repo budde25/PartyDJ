@@ -1,10 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:spotify_queue/frontend/queue.dart';
-import 'backend/spotify.dart';
-import 'backend/firestore.dart' as fs;
-import 'backend/platform.dart';
-import 'backend/song.dart';
+import '../backend/spotify.dart';
+import '../backend/firestore.dart' as fs;
+import '../backend/platform.dart';
+import '../backend/song.dart';
 
 
 class Search extends StatefulWidget {
@@ -51,7 +51,7 @@ class _SearchState extends State<Search> {
                     return ListTile(
                       title: Text (results[index].name),
                       subtitle: Text (results[index].artist),
-                      onTap: () { fs.addSong(queueId, results[index].name, results[index].artist, results[index].track);
+                      onTap: () { fs.addSong(queueId, results[index].name, results[index].artist, results[index].uri);
                         // songs.add(results[index]);
                         },
                     );
