@@ -1,9 +1,10 @@
 
 import 'package:flutter/material.dart';
-import 'package:spotify_queue/queue.dart';
-import 'spotifyApi.dart';
-import 'firebase.dart' as fs;
-import 'platform.dart';
+import 'package:spotify_queue/frontend/queue.dart';
+import 'backend/spotify.dart';
+import 'backend/firestore.dart' as fs;
+import 'backend/platform.dart';
+import 'backend/song.dart';
 
 
 class Search extends StatefulWidget {
@@ -12,18 +13,6 @@ class Search extends StatefulWidget {
 }
 
 String token;
-
-class Song {
-  String name;
-  String artist;
-  String track;
-
-  Song(String name, String artist, String track) {
-    this.name = name;
-    this.artist = artist;
-    this.track = track;
-  }
-}
 
 class _SearchState extends State<Search> {
 
