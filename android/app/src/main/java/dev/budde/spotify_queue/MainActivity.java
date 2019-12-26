@@ -22,6 +22,9 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
+import java.util.Arrays;
+import java.util.List;
+
 
 public class MainActivity extends FlutterActivity {
 
@@ -154,6 +157,7 @@ public class MainActivity extends FlutterActivity {
                     boolean isPaused = playerState.isPaused;
 
                     waitToEnd(currentTrack, timeLeft, isPaused);
+                    currentTrack(currentTrack);
                 });
     }
 
@@ -171,6 +175,11 @@ public class MainActivity extends FlutterActivity {
                 }
             }, timeLeft - 1000);
         }
+    }
+
+    private void currentTrack(Track track){
+        List<String> song = Arrays.asList(track.name, track.artist.name, track.uri);
+        methodChannel.invokeMethod("song", song);
     }
 
 

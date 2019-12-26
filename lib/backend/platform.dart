@@ -26,23 +26,18 @@ void play(String track) async {
 }
 
 Future<void> methodCallHandler(MethodCall call) {
-  switch(call.method) {
+  switch (call.method) {
     case "trackEnd":
       playNextSong();
       print('Song Ended');
       break;
     case "song":
-      List<String> args = call.arguments;
-      currentSong = new Song(args[0], args[1], args[2]);
+      List<dynamic> args = call.arguments;
+      callback(
+          new Song(args[0].toString(), args[1].toString(), args[2].toString()));
       break;
     default:
       print('Error: unexpected methodcall');
-  }
-  if (call.method == "trackEnd"){
-    playNextSong();
-    print('Song Ended');
-  } else {
-    print('Error unknown: ${call.method}');
   }
   return null;
 }

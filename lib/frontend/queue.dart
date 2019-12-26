@@ -11,6 +11,7 @@ String queueId;
 List<Song> songs;
 
 Song currentSong;
+Function callback;
 
 class Queue extends StatefulWidget {
   @override
@@ -31,6 +32,7 @@ class _QueueState extends State<Queue> {
   void initState() {
     super.initState();
     platform.setMethodCallHandler(methodCallHandler);
+    callback = _refresh;
   }
 
   @override
@@ -134,6 +136,12 @@ class _QueueState extends State<Queue> {
       actions: <Widget>[
       ],
     );
+  }
+
+  void _refresh(Song song) {
+    setState(() {
+      currentSong = song;
+    });
   }
 }
 
