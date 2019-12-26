@@ -11,7 +11,10 @@ String queueId;
 List<Song> songs;
 
 Song currentSong;
-Function callback;
+bool isPaused;
+
+Function setCurrentSong;
+Function setIsPlaying;
 
 class Queue extends StatefulWidget {
   @override
@@ -32,7 +35,8 @@ class _QueueState extends State<Queue> {
   void initState() {
     super.initState();
     platform.setMethodCallHandler(methodCallHandler);
-    callback = _refresh;
+    setCurrentSong = _refresh;
+    setIsPlaying = _playing;
   }
 
   @override
@@ -69,12 +73,12 @@ class _QueueState extends State<Queue> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     IconButton(
-                      icon: Icon(Icons.play_arrow),
-                      onPressed: () => null,
+                      icon: Icon(isPaused == true ? Icons.play_arrow : Icons.pause),
+                      onPressed: () => isPaused == true ? play() : pause(),
                     ),
                     IconButton(
                       icon: Icon(Icons.skip_next),
-                      onPressed: () => null,
+                      onPressed: () => skip(),
                     )
                   ],
                 ),
@@ -105,7 +109,7 @@ class _QueueState extends State<Queue> {
                               return ListTile(
                                 title: Text(document['name']),
                                 subtitle: Text(document['artist']),
-                                onTap: () => play(document['track']),
+                                onTap: () => playSong(document['track']),
                                 trailing: IconButton(
                                   icon: Icon(Icons.delete),
                                   onPressed: () => removeSong(queueId, document.documentID),
@@ -141,6 +145,12 @@ class _QueueState extends State<Queue> {
   void _refresh(Song song) {
     setState(() {
       currentSong = song;
+    });
+  }
+
+  void _playing(bool paused) {
+    setState(() {
+      isPaused = paused;
     });
   }
 }

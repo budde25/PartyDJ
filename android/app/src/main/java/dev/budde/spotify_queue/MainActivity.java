@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.util.Log;
 
 import io.flutter.app.FlutterActivity;
-import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
@@ -14,9 +13,6 @@ import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
-import com.spotify.protocol.client.Subscription;
-import com.spotify.protocol.types.PlayerState;
-import com.spotify.protocol.types.Repeat;
 import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -52,14 +48,20 @@ public class MainActivity extends FlutterActivity {
                 (call, result) -> {
                     // Note: this method is invoked on the main thread.
                     switch (call.method) {
-                        case ("play"):
-                            play(call.argument("track"));
+                        case ("playSong"):
+                            playSong(call.argument("track"));
                             break;
                         case ("token"):
                             result.success(userToken);
                             break;
-                        case ("user"):
-                            result.success(username);
+                        case ("play"):
+                            play();
+                            break;
+                        case ("pause"):
+                            pause();
+                            break;
+                        case ("skip"):
+                            skip();
                             break;
                     }
                 });
@@ -97,12 +99,19 @@ public class MainActivity extends FlutterActivity {
                 });
     }
 
-    private void play(String track) {
+    private void playSong(String track) {
         mSpotifyAppRemote.getPlayerApi().play(track);
     }
 
-    private void repeat(int state){
-        mSpotifyAppRemote.getPlayerApi().setRepeat(state);
+    private void play() {
+        mSpotifyAppRemote.getPlayerApi().resume();
+    }
+    private void pause(){
+        mSpotifyAppRemote.getPlayerApi().pause();
+    }
+
+    private void skip() {
+        methodChannel.invokeMethod("trackEnd", "true");
     }
 
     private void login(){
@@ -156,13 +165,13 @@ public class MainActivity extends FlutterActivity {
                     long timeLeft = duration - position;
                     boolean isPaused = playerState.isPaused;
 
-                    waitToEnd(currentTrack, timeLeft, isPaused);
-                    currentTrack(currentTrack);
+                    invokeEndSong(currentTrack, timeLeft, isPaused);
+                    invokeCurrentTrack(currentTrack);
+                    invokeIsPaused(isPaused);
                 });
     }
 
-    private void waitToEnd(Track track, long timeLeft, boolean isPaused) {
-        Log.d("waitToEnd", timeLeft + "" + isPaused);
+    private void invokeEndSong(Track track, long timeLeft, boolean isPaused) {
         handler.removeCallbacksAndMessages(null);
         if (!isPaused) {
             handler.postDelayed(new Runnable() {
@@ -177,14 +186,13 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
-    private void currentTrack(Track track){
+    private void invokeCurrentTrack(Track track){
         List<String> song = Arrays.asList(track.name, track.artist.name, track.uri);
         methodChannel.invokeMethod("song", song);
     }
 
-
-
-
-
+    private void invokeIsPaused(boolean isPaused) {
+        methodChannel.invokeMethod("isPaused", isPaused);
+    }
 }
 
