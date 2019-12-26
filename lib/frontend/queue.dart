@@ -35,8 +35,6 @@ class _QueueState extends State<Queue> {
   void initState() {
     super.initState();
     platform.setMethodCallHandler(methodCallHandler);
-    setCurrentSong = _refresh;
-    setIsPlaying = _playing;
   }
 
   @override
@@ -66,23 +64,7 @@ class _QueueState extends State<Queue> {
         body: Center(
           child: Column(
             children: <Widget> [
-              ListTile(
-                title: Text(currentSong == null ? 'No song playing' : currentSong.name),
-                subtitle: Text(currentSong == null ? '' : currentSong.artist),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(isPaused == true ? Icons.play_arrow : Icons.pause),
-                      onPressed: () => isPaused == true ? play() : pause(),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.skip_next),
-                      onPressed: () => skip(),
-                    )
-                  ],
-                ),
-              ),
+              NowPlaying(),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                     stream: Firestore.instance.collection(queueId).snapshots(),
@@ -141,6 +123,52 @@ class _QueueState extends State<Queue> {
       ],
     );
   }
+}
+
+Song getNextSong() {
+  Song min = songs[0];
+  for (Song song in songs){
+    if (song.id < min.id) {
+      min = song;
+    }
+  }
+  return min;
+}
+
+class NowPlaying extends StatefulWidget {
+  @override
+  _NowPlayingState createState() => _NowPlayingState();
+}
+
+class _NowPlayingState extends State<NowPlaying> {
+
+  @override
+  void initState() {
+    super.initState();
+    setCurrentSong = _refresh;
+    setIsPlaying = _playing;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(currentSong == null ? 'No song playing' : currentSong.name),
+      subtitle: Text(currentSong == null ? '' : currentSong.artist),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(isPaused == true ? Icons.play_arrow : Icons.pause),
+            onPressed: () => isPaused == true ? play() : pause(),
+          ),
+          IconButton(
+            icon: Icon(Icons.skip_next),
+            onPressed: () => skip(),
+          )
+        ],
+      ),
+    );
+  }
 
   void _refresh(Song song) {
     setState(() {
@@ -153,14 +181,4 @@ class _QueueState extends State<Queue> {
       isPaused = paused;
     });
   }
-}
-
-Song getNextSong() {
-  Song min = songs[0];
-  for (Song song in songs){
-    if (song.id < min.id) {
-      min = song;
-    }
-  }
-  return min;
 }
