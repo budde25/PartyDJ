@@ -69,6 +69,7 @@ void skip() async {
   }
 }
 
+// TODO fix unexpected method calls
 Future<void> methodCallHandler(MethodCall call) {
   try {
     switch (call.method) {
@@ -87,7 +88,7 @@ Future<void> methodCallHandler(MethodCall call) {
         setIsPlaying(isPaused);
         break;
       case "authorized":
-        token = call.arguments;
+        setToken(call.arguments);
         authorized();
         break;
       default:

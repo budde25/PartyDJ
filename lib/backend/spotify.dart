@@ -16,6 +16,9 @@ Future<Map<String, dynamic>> getSearchResults(String query, String token) async 
       .then<Map<String, dynamic>>((Response response) {
     if (response.body != '' && response.statusCode == 200) {
       map = json.decode(response.body)['tracks'];
+    } else if (response.statusCode == 401) {
+      print(token);
+      print(response.body);
     } else {
       throw 'Invalid Response';
     }

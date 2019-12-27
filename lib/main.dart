@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spotify_queue/backend/SharedPreferences.dart';
+import 'package:spotify_queue/backend/firestore.dart';
 import 'package:spotify_queue/frontend/queue.dart';
 
 import 'backend/platform.dart';
@@ -48,6 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
     startAuth();
   }
 
+  bool loading = false;
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -84,9 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             MaterialButton(
               child: Text('Make queue'),
-              onPressed: () => Navigator.pushAndRemoveUntil(context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => Queue(null)), (_) => false)
+              onPressed: () => _makeQueue(),
             ),
             MaterialButton(
               child: Text('Join queue'),
@@ -103,29 +104,71 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildDialog(BuildContext context) {
     TextEditingController code = new TextEditingController();
-    return new AlertDialog(
-      title: const Text('Enter Room Code'),
-      shape: RoundedRectangleBorder(),
-      content: TextField(
-        decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Room Code'
+    loading = false;
+    if (!loading) {
+      return new AlertDialog(
+        title: const Text('Enter Room Code'),
+        shape: RoundedRectangleBorder(),
+        content: TextField(
+          decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Room Code'
+          ),
+          controller: code,
+          autocorrect: false,
+          maxLength: 6,
         ),
-        controller: code,
-        autocorrect: false,
-        maxLength: 6,
-      ),
-      actions: <Widget>[
-        new MaterialButton(
-          onPressed: () {
-              Navigator.pushAndRemoveUntil(context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => Queue(code.text)), (_) => false);
-          },
-          textColor: Theme.of(context).primaryColor,
-          child: const Text('Submit'),
-        ),
-      ],
-    );
+        actions: <Widget>[
+          new MaterialButton(
+            onPressed: () => joinQueue(code.text),
+            textColor: Theme
+                .of(context)
+                .primaryColor,
+            child: const Text('Submit'),
+          ),
+        ],
+      );
+    } else {
+      return new AlertDialog(
+          title: const Text('Enter Room Code'),
+          shape: RoundedRectangleBorder(),
+          content: new CircularProgressIndicator(),
+      );
+    }
+  }
+  Future<void> joinQueue(String code) async {
+    setState(() {
+      loading = true;
+    });
+
+    String username = await getUsername();
+    String owner = await getOwner(code);
+
+    // room is not enabled
+    if (owner == null) {
+      setState(() {
+        loading = false;
+      });
+      return;
+    }
+
+    if (username == owner) {
+      Navigator.pushAndRemoveUntil(context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => Queue(code, true)), (_) => false);
+    } else {
+      Navigator.push(context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => Queue(code, false)));
+    }
+
+  }
+
+  Future<void> _makeQueue() async {
+    String username = await getUsername();
+    String code = createQueue(username);
+    Navigator.pushAndRemoveUntil(context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => Queue(code, true)), (_) => false);
   }
 }

@@ -6,12 +6,42 @@ import '../frontend/queue.dart';
 import 'utils.dart';
 
 void removeSong(String queue, String track) {
-  Firestore.instance.collection(queue).document(track).delete();
+  Firestore.instance.collection(queue).document('songs').collection('1').document(track).delete();
 }
 
 void addSong(String queue, String name, String artist, String track) {
-  Firestore.instance.collection(queue).document(getTime().toString())
+  Firestore.instance.collection(queue).document('songs').collection('1').document(getTime().toString())
       .setData({ 'name': name, 'artist': artist, 'track': track});
+}
+
+String createQueue(String username) {
+  if (username == "Unable to retrieve username") {
+    username = null;
+  }
+  String code = generateCode(6);
+  Firestore.instance.collection(code).document('manifest')
+      .setData({'enabled': true, 'owner': username});
+  return code;
+}
+
+void destroyQueue(String queue) {
+  Firestore.instance.collection(queue).document('manifest')
+      .setData({'enabled': false});
+}
+
+Future<String> getOwner(String queue) async {
+  try {
+    Map document;
+    await Firestore.instance.collection(queue).document('manifest').get()
+        .then((DocumentSnapshot ds) {
+      document = ds.data;
+    });
+    bool enabled = document['enabled'];
+    String owner = document['owner'];
+    return enabled ? owner : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 void playNextSong() {

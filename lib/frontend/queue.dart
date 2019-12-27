@@ -12,6 +12,7 @@ List<Song> songs;
 
 Song currentSong;
 bool isPaused;
+bool isOwner;
 
 Function setCurrentSong;
 Function setIsPlaying;
@@ -20,7 +21,8 @@ class Queue extends StatefulWidget {
   @override
   _QueueState createState() => _QueueState();
 
-  Queue(String id) {
+  Queue(String id, bool owner) {
+    isOwner = owner;
     if (id != null) {
       queueId = id;
     } else {
@@ -58,7 +60,7 @@ class _QueueState extends State<Queue> {
               context,
               MaterialPageRoute(builder: (BuildContext context) => Search())),
           child: Icon(Icons.add),
-          tooltip: 'search',
+          tooltip: 'add song',
         ),
         body: Center(
           child: Column(
@@ -66,7 +68,7 @@ class _QueueState extends State<Queue> {
               NowPlaying(),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance.collection(queueId).snapshots(),
+                    stream: Firestore.instance.collection(queueId).document('songs').collection('1').snapshots(),
                     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.hasError)
                         return new Text('Error: ${snapshot.error}');
@@ -87,14 +89,23 @@ class _QueueState extends State<Queue> {
                                 songs.add(song);
                               }
 
-                              return ListTile(
-                                title: Text(document['name']),
-                                subtitle: Text(document['artist']),
-                                trailing: IconButton(
-                                  icon: Icon(Icons.delete),
-                                  onPressed: () => removeSong(queueId, document.documentID),
-                                ),
-                              );
+                              if (isOwner) {
+                                return ListTile(
+                                  title: Text(document['name']),
+                                  subtitle: Text(document['artist']),
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () =>
+                                        removeSong(
+                                            queueId, document.documentID),
+                                  ),
+                                );
+                              } else {
+                                return ListTile(
+                                  title: Text(document['name']),
+                                  subtitle: Text(document['artist']),
+                                );
+                              }
                             }).toList(),
                       );
                       }
