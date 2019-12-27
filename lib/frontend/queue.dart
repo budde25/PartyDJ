@@ -34,7 +34,6 @@ class _QueueState extends State<Queue> {
   @override
   void initState() {
     super.initState();
-    platform.setMethodCallHandler(methodCallHandler);
   }
 
   @override
@@ -91,7 +90,6 @@ class _QueueState extends State<Queue> {
                               return ListTile(
                                 title: Text(document['name']),
                                 subtitle: Text(document['artist']),
-                                onTap: () => playSong(document['track']),
                                 trailing: IconButton(
                                   icon: Icon(Icons.delete),
                                   onPressed: () => removeSong(queueId, document.documentID),
@@ -112,15 +110,8 @@ class _QueueState extends State<Queue> {
   Widget _buildDialog(BuildContext context) {
     return new AlertDialog(
       title: const Text('Room Code'),
-      content: new Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(queueId)
-        ],
-      ),
-      actions: <Widget>[
-      ],
+      content:
+          SelectableText(queueId)
     );
   }
 }

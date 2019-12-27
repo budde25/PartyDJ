@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:spotify_queue/frontend/queue.dart';
@@ -13,19 +12,12 @@ class Search extends StatefulWidget {
   _SearchState createState() => _SearchState();
 }
 
-String token;
 String lastSearch;
 
 class _SearchState extends State<Search> {
 
   final TextEditingController searchController = new TextEditingController();
   List<Song> results = new List();
-
-  @override
-  void initState() {
-    _loadToken();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,9 +79,4 @@ class _SearchState extends State<Search> {
     });
 
   }
-
-  void _loadToken() async {
-    token = await getToken();
-  }
-
 }

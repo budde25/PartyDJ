@@ -28,7 +28,6 @@ public class MainActivity extends FlutterActivity {
     private static final String REDIRECT_URI = "dev.budde.spotifyqueue://callback";
     private SpotifyAppRemote mSpotifyAppRemote;
     private String userToken;
-    private String username;
 
     private static final int REQUEST_CODE = 1337;
     private static final String CHANNEL = "dev.budde.spotify_queue";
@@ -42,7 +41,7 @@ public class MainActivity extends FlutterActivity {
         super.onCreate(savedInstanceState);
         GeneratedPluginRegistrant.registerWith(this);
 
-        login();
+        //login();
         methodChannel = new MethodChannel(getFlutterView(), CHANNEL);
         methodChannel.setMethodCallHandler(
                 (call, result) -> {
@@ -63,14 +62,20 @@ public class MainActivity extends FlutterActivity {
                         case ("skip"):
                             skip();
                             break;
+                        case ("login"):
+                            login();
+                            break;
+                        case ("spotify"):
+                            startSpotify();
+                            break;
+                        default:
+                            Log.e("Error", "invalid method: " + call.method);
                     }
                 });
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+    private void startSpotify() {
         ConnectionParams connectionParams =
                 new ConnectionParams.Builder(CLIENT_ID)
                         .setRedirectUri(REDIRECT_URI)
@@ -97,6 +102,11 @@ public class MainActivity extends FlutterActivity {
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     private void playSong(String track) {
@@ -140,6 +150,7 @@ public class MainActivity extends FlutterActivity {
             switch (response.getType()) {
                 // Response was successful and contains auth token
                 case TOKEN:
+                    invokeAuthorized(userToken);
                     // Handle successful response
                     break;
 
@@ -156,6 +167,9 @@ public class MainActivity extends FlutterActivity {
     }
 
     private void connected(){
+
+        //invokeAuthorized(userToken);
+
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
                 .setEventCallback(playerState -> {
@@ -193,6 +207,10 @@ public class MainActivity extends FlutterActivity {
 
     private void invokeIsPaused(boolean isPaused) {
         methodChannel.invokeMethod("isPaused", isPaused);
+    }
+
+    private void invokeAuthorized(String token) {
+        methodChannel.invokeMethod("authorized", token);
     }
 }
 

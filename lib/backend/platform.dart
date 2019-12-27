@@ -1,20 +1,40 @@
 import 'package:flutter/services.dart';
+import 'package:spotify_queue/backend/SharedPreferences.dart';
 import 'package:spotify_queue/backend/song.dart';
+import 'package:spotify_queue/backend/spotify.dart';
 import 'package:spotify_queue/frontend/queue.dart';
 
 import '../backend/firestore.dart';
 
 const MethodChannel platform = MethodChannel('dev.budde.spotify_queue');
 
-Future<String> getToken() async {
+String username;
+String token;
+
+/*Future<String> getToken() async {
   String token;
   try {
     token = await platform.invokeMethod('token');
   } on PlatformException catch (e) {
     print(e.message);
   }
-  print(token);
   return token;
+}*/
+
+void login() async {
+  try {
+    platform.invokeMethod('login');
+  } on PlatformException catch (e) {
+    print(e.message);
+  }
+}
+
+void startSpotify() async {
+  try {
+    platform.invokeMethod('spotify');
+  } on PlatformException catch (e) {
+    print(e.message);
+  }
 }
 
 void playSong(String track) async {
@@ -66,6 +86,11 @@ Future<void> methodCallHandler(MethodCall call) {
         bool isPaused = call.arguments;
         setIsPlaying(isPaused);
         break;
+      case "authorized":
+        token = call.arguments;
+        setToken(token);
+        print(getUserData(token));
+        break;
       default:
         print('Error: unexpected methodcall');
     }
@@ -73,4 +98,12 @@ Future<void> methodCallHandler(MethodCall call) {
     print(e);
   }
   return null;
+}
+
+void startAuth() async {
+  bool isToken = await tokenExists();
+  if (!isToken) {
+    login();
+  }
+  token = await getToken();
 }
