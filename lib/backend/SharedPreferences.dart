@@ -14,3 +14,18 @@ Future<bool> tokenExists() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   return prefs.getKeys().contains('token');
 }
+
+Future<void> setUsername(String username) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('username', username);
+}
+
+Future<String> getUsername() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('username');
+}
+
+Future<bool> usernameExists() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getKeys().contains('username');
+}

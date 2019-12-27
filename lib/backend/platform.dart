@@ -88,8 +88,7 @@ Future<void> methodCallHandler(MethodCall call) {
         break;
       case "authorized":
         token = call.arguments;
-        setToken(token);
-        print(getUserData(token));
+        authorized();
         break;
       default:
         print('Error: unexpected methodcall');
@@ -104,6 +103,19 @@ void startAuth() async {
   bool isToken = await tokenExists();
   if (!isToken) {
     login();
+  } else {
+    authorized();
   }
+}
+
+void authorized() async {
   token = await getToken();
+
+  bool isUsername = await usernameExists();
+  if (!isUsername) {
+    Map<String,dynamic> userData = await getUserData(token);
+    String username = userData['display_name'];
+    print(username);
+    setUsername(username);
+  }
 }
