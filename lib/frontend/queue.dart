@@ -48,88 +48,89 @@ class _QueueState extends State<Queue> {
               icon: Icon(Icons.share),
               onPressed: () {
                 showDialog(
-                    context: context,
-                    builder: (BuildContext context) => _buildDialog(context),
+                  context: context,
+                  builder: (BuildContext context) => _buildDialog(context),
                 );
               },
             )
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.push(
-              context,
+          onPressed: () => Navigator.push(context,
               MaterialPageRoute(builder: (BuildContext context) => Search())),
           child: Icon(Icons.add),
           tooltip: 'add song',
         ),
         body: Center(
           child: Column(
-            children: <Widget> [
+            children: <Widget>[
               NowPlaying(),
               Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance.collection(queueId).document('songs').collection('1').snapshots(),
-                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.hasError)
-                        return new Text('Error: ${snapshot.error}');
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return Text('Retriving Queue');
-                        default:
-                          return ListView(
-                            children: snapshot.data.documents.map((DocumentSnapshot document) {
-                              // Adding to the array
-                              String name = document['name'];
-                              String artist = document['artist'];
-                              String track = document['track'];
-                              int id = int.parse(document.documentID);
-                              Song song = new Song(name, artist, track);
-                              song.id = id;
-                              if (!songs.contains(song)) {
-                                songs.add(song);
-                              }
+                  child: StreamBuilder<QuerySnapshot>(
+                      stream: Firestore.instance
+                          .collection(queueId)
+                          .document('songs')
+                          .collection('1')
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.hasError)
+                          return new Text('Error: ${snapshot.error}');
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                            return CircularProgressIndicator();
+                          default:
+                            return ListView(
+                              children: snapshot.data.documents
+                                  .map((DocumentSnapshot document) {
+                                // Adding to the array
+                                String name = document['name'];
+                                String artist = document['artist'];
+                                String track = document['track'];
+                                int id = int.parse(document.documentID);
+                                Song song = new Song(name, artist, track);
+                                song.id = id;
+                                if (!songs.contains(song)) {
+                                  songs.add(song);
+                                }
 
-                              if (isOwner) {
-                                return ListTile(
-                                  title: Text(document['name']),
-                                  subtitle: Text(document['artist']),
-                                  trailing: IconButton(
-                                    icon: Icon(Icons.delete),
-                                    onPressed: () =>
-                                        removeSong(
-                                            queueId, document.documentID),
-                                  ),
-                                );
-                              } else {
-                                return ListTile(
-                                  title: Text(document['name']),
-                                  subtitle: Text(document['artist']),
-                                );
-                              }
-                            }).toList(),
-                      );
-                      }
-                    }
-                )
-              )
+                                if (isOwner) {
+                                  return ListTile(
+                                    title: Text(document['name']),
+                                    subtitle: Text(document['artist']),
+                                    leading: Image.network(document['image']),
+                                    trailing: IconButton(
+                                      icon: Icon(Icons.delete),
+                                      onPressed: () => removeSong(
+                                          queueId, document.documentID),
+                                    ),
+                                  );
+                                } else {
+                                  return ListTile(
+                                    title: Text(document['name']),
+                                    subtitle: Text(document['artist']),
+                                    leading: Image.network(document['image']),
+                                  );
+                                }
+                              }).toList(),
+                            );
+                        }
+                      }))
             ],
           ),
-        )
-    );
+        ));
   }
 
   Widget _buildDialog(BuildContext context) {
     return new AlertDialog(
-      title: const Text('Room Code'),
-      content:
-          SelectableText(queueId)
-    );
+        title: const Text('Room Code'),
+        content: SelectableText(queueId));
   }
 }
 
 Song getNextSong() {
   Song min = songs[0];
-  for (Song song in songs){
+  for (Song song in songs) {
     if (song.id < min.id) {
       min = song;
     }
@@ -143,7 +144,6 @@ class NowPlaying extends StatefulWidget {
 }
 
 class _NowPlayingState extends State<NowPlaying> {
-
   @override
   void initState() {
     super.initState();
@@ -153,23 +153,48 @@ class _NowPlayingState extends State<NowPlaying> {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(currentSong == null ? 'No song playing' : currentSong.name),
-      subtitle: Text(currentSong == null ? '' : currentSong.artist),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          IconButton(
-            icon: Icon(isPaused == true ? Icons.play_arrow : Icons.pause),
-            onPressed: () => isPaused == true ? play() : pause(),
+    if (isOwner) {
+      return Padding(
+        padding: EdgeInsets.all(12),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(),
           ),
-          IconButton(
-            icon: Icon(Icons.skip_next),
-            onPressed: () => skip(),
-          )
-        ],
-      ),
-    );
+          child: ListTile(
+            title: Text(
+                currentSong == null ? 'No song playing' : currentSong.name),
+            subtitle: Text(currentSong == null ? '' : currentSong.artist),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(isPaused == true ? Icons.play_arrow : Icons.pause),
+                  onPressed: () => isPaused == true ? play() : pause(),
+                ),
+                IconButton(
+                  icon: Icon(Icons.skip_next),
+                  onPressed: () => skip(),
+                )
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Padding(
+        padding: EdgeInsets.all(12),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(),
+          ),
+          child: ListTile(
+            title: Text(
+                currentSong == null ? 'No song playing' : currentSong.name),
+            subtitle: Text(currentSong == null ? '' : currentSong.artist),
+          ),
+        ),
+      );
+    }
   }
 
   void _refresh(Song song) {

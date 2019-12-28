@@ -39,7 +39,7 @@ void startSpotify() async {
 
 void playSong(String track) async {
   try {
-    platform.invokeMethod('playSong', <String, String> {'track':track});
+    platform.invokeMethod('playSong', <String, String>{'track': track});
   } on PlatformException catch (e) {
     print(e.message);
   }
@@ -79,9 +79,8 @@ Future<void> methodCallHandler(MethodCall call) {
         break;
       case "song":
         List<dynamic> args = call.arguments;
-        setCurrentSong(
-            new Song(
-                args[0].toString(), args[1].toString(), args[2].toString()));
+        setCurrentSong(new Song(
+            args[0].toString(), args[1].toString(), args[2].toString()));
         break;
       case "isPaused":
         bool isPaused = call.arguments;
@@ -114,9 +113,11 @@ void authorized() async {
 
   bool isUsername = await usernameExists();
   if (!isUsername) {
-    Map<String,dynamic> userData = await getUserData(token);
+    Map<String, dynamic> userData = await getUserData(token);
     String username = userData['display_name'];
-    print(username);
-    setUsername(username);
+    if (username != "Unable to retrieve username" && username != null) {
+      setUsername(username);
+    }
   }
+  print(username);
 }

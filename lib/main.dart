@@ -18,7 +18,6 @@ class MyApp extends StatelessWidget {
       home: MyHomePage(title: 'Spotify Queue'),
     );
   }
-
 }
 
 class MyHomePage extends StatefulWidget {
@@ -40,7 +39,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   void initState() {
     super.initState();
@@ -92,15 +90,14 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialButton(
               child: Text('Join queue'),
               onPressed: () => showDialog(
-                context: context,
-                builder: (BuildContext context) => _buildDialog(context)),
+                  context: context,
+                  builder: (BuildContext context) => _buildDialog(context)),
             ),
           ],
         ),
       ),
     );
   }
-
 
   Widget _buildDialog(BuildContext context) {
     TextEditingController code = new TextEditingController();
@@ -111,9 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
         shape: RoundedRectangleBorder(),
         content: TextField(
           decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Room Code'
-          ),
+              border: OutlineInputBorder(), labelText: 'Room Code'),
           controller: code,
           autocorrect: false,
           maxLength: 6,
@@ -121,21 +116,20 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: <Widget>[
           new MaterialButton(
             onPressed: () => joinQueue(code.text),
-            textColor: Theme
-                .of(context)
-                .primaryColor,
+            textColor: Theme.of(context).primaryColor,
             child: const Text('Submit'),
           ),
         ],
       );
     } else {
       return new AlertDialog(
-          title: const Text('Enter Room Code'),
-          shape: RoundedRectangleBorder(),
-          content: new CircularProgressIndicator(),
+        title: const Text('Enter Room Code'),
+        shape: RoundedRectangleBorder(),
+        content: new CircularProgressIndicator(),
       );
     }
   }
+
   Future<void> joinQueue(String code) async {
     setState(() {
       loading = true;
@@ -153,22 +147,25 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     if (username == owner) {
-      Navigator.pushAndRemoveUntil(context,
+      Navigator.pushAndRemoveUntil(
+          context,
           MaterialPageRoute(
-              builder: (BuildContext context) => Queue(code, true)), (_) => false);
+              builder: (BuildContext context) => Queue(code, true)),
+          (_) => false);
     } else {
-      Navigator.push(context,
+      Navigator.push(
+          context,
           MaterialPageRoute(
               builder: (BuildContext context) => Queue(code, false)));
     }
-
   }
 
   Future<void> _makeQueue() async {
     String username = await getUsername();
     String code = createQueue(username);
-    Navigator.pushAndRemoveUntil(context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => Queue(code, true)), (_) => false);
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (BuildContext context) => Queue(code, true)),
+        (_) => false);
   }
 }
