@@ -42,6 +42,15 @@ class _QueueState extends State<Queue> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(isOwner ? Icons.close : Icons.arrow_back),
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) => _exit(context),
+              );
+            },
+          ),
           title: Text('Song Queue'),
           actions: <Widget>[
             IconButton(
@@ -119,10 +128,50 @@ class _QueueState extends State<Queue> {
             ],
           ),
         ));
+
+  }
+
+  Widget _exit(BuildContext context) {
+    if (isOwner) {
+      return AlertDialog(
+        title: Text('Close Queue'),
+        content: Text('Are you sure you want to end the queue?'),
+        actions: <Widget>[
+          MaterialButton(
+            child: Text('Yes'),
+            onPressed: () => _leave(),
+          ),
+          MaterialButton(
+            child: Text('No'),
+            onPressed: () => Navigator.pop(context),
+          )
+        ],
+      );
+    } else {
+      return AlertDialog(
+        title: Text('Leave Queue'),
+        content: Text('Are you sure you want to leave the queue?'),
+        actions: <Widget>[
+          MaterialButton(
+            child: Text('Yes'),
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false),
+          ),
+          MaterialButton(
+            child: Text('No'),
+            onPressed: () => Navigator.pop(context),
+          )
+        ],
+      );
+    }
+  }
+
+  Future<void> _leave() async {
+    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+    destroyQueue(queueId);
   }
 
   Widget _buildDialog(BuildContext context) {
-    return new AlertDialog(
+    return AlertDialog(
         title: const Text('Room Code'),
         content: SelectableText(queueId));
   }
