@@ -79,8 +79,11 @@ Future<void> methodCallHandler(MethodCall call) {
         break;
       case "song":
         List<dynamic> args = call.arguments;
-        setCurrentSong(new Song(
-            args[0].toString(), args[1].toString(), args[2].toString()));
+        Song song = new Song(
+            args[0].toString(), args[1].toString(), args[2].toString());
+        String imageUri = args[3].toString().split(':')[2];
+        song.imageUri = 'https://i.scdn.co/image/$imageUri';
+        setCurrentSong(song);
         break;
       case "isPaused":
         bool isPaused = call.arguments;

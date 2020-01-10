@@ -10,9 +10,12 @@ import '../backend/firestore.dart';
 String queueId;
 List<Song> songs;
 
-Song currentSong;
+Song currentSongClient;
+Song currentSongOwner;
+
 bool isPaused;
 bool isOwner;
+bool isStarted;
 
 Function setCurrentSong;
 Function setIsPlaying;
@@ -29,6 +32,7 @@ class Queue extends StatefulWidget {
       queueId = generateCode(6);
     }
     songs = new List();
+    isStarted = false;
   }
 }
 
@@ -84,7 +88,9 @@ class _QueueState extends State<Queue> {
                       builder: (BuildContext context,
                           AsyncSnapshot<QuerySnapshot> snapshot) {
                         if (snapshot.hasError)
-                          return new Text('Error: ${snapshot.error}');
+                          return Center (
+                            child: Text('Error: ${snapshot.error}')
+                          );
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
                             return Center(
@@ -98,11 +104,16 @@ class _QueueState extends State<Queue> {
                                 String name = document['name'];
                                 String artist = document['artist'];
                                 String track = document['track'];
-                                int id = int.parse(document.documentID);
+
                                 Song song = new Song(name, artist, track);
-                                song.id = id;
-                                if (!songs.contains(song)) {
-                                  songs.add(song);
+                                if (document.documentID == 'current') {
+                                  currentSongClient = song;
+                                } else {
+                                  int id = int.parse(document.documentID);
+                                  song.id = id;
+                                  if (!songs.contains(song)) {
+                                    songs.add(song);
+                                  }
                                 }
 
                                 if (isOwner) {
@@ -204,7 +215,7 @@ class _NowPlayingState extends State<NowPlaying> {
 
   @override
   Widget build(BuildContext context) {
-    if (isOwner) {
+    if (!isStarted && isOwner) {
       return Padding(
         padding: EdgeInsets.all(12),
         child: Container(
@@ -212,9 +223,42 @@ class _NowPlayingState extends State<NowPlaying> {
             border: Border.all(),
           ),
           child: ListTile(
+            leading: currentSongOwner == null ? null : Image.network(currentSongOwner.imageUri),
             title: Text(
-                currentSong == null ? 'No song playing' : currentSong.name),
-            subtitle: Text(currentSong == null ? '' : currentSong.artist),
+                currentSongOwner == null ? 'No song playing' : currentSongOwner.name),
+            subtitle: Text(currentSongOwner == null ? '' : currentSongOwner.artist),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text('Start'),
+                IconButton(
+                  icon: Icon(Icons.play_arrow),
+                  onPressed: () {
+                    setState(() {
+                      if (songs.length > 0) {
+                        isStarted = true;
+                        playNextSong();
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else if (isOwner) {
+      return Padding(
+        padding: EdgeInsets.all(12),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(),
+          ),
+          child: ListTile(
+            leading: currentSongOwner == null ? null : Image.network(currentSongOwner.imageUri),
+            title: Text(
+                currentSongOwner == null ? 'No song playing' : currentSongOwner.name),
+            subtitle: Text(currentSongOwner == null ? '' : currentSongOwner.artist),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -239,9 +283,10 @@ class _NowPlayingState extends State<NowPlaying> {
             border: Border.all(),
           ),
           child: ListTile(
+            leading: Image.network(currentSongClient.imageUri),
             title: Text(
-                currentSong == null ? 'No song playing' : currentSong.name),
-            subtitle: Text(currentSong == null ? '' : currentSong.artist),
+                currentSongClient == null ? 'No song playing' : currentSongOwner.name),
+            subtitle: Text(currentSongOwner == null ? '' : currentSongOwner.artist),
           ),
         ),
       );
@@ -250,7 +295,8 @@ class _NowPlayingState extends State<NowPlaying> {
 
   void _refresh(Song song) {
     setState(() {
-      currentSong = song;
+      currentSongOwner = song;
+      setSong(queueId, song.name, song.artist, song.uri, song.imageUri);
     });
   }
 

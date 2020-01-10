@@ -136,7 +136,7 @@ public class MainActivity extends FlutterActivity{
     @Override
     protected void onStop() {
         super.onStop();
-        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+        //SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -200,7 +200,7 @@ public class MainActivity extends FlutterActivity{
     }
 
     private void invokeCurrentTrack(Track track){
-        List<String> song = Arrays.asList(track.name, track.artist.name, track.uri, track.album.uri);
+        List<String> song = Arrays.asList(track.name, track.artist.name, track.uri, track.imageUri.toString());
         methodChannel.invokeMethod("song", song);
     }
 
