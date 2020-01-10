@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class MainActivity extends FlutterActivity {
+public class MainActivity extends FlutterActivity{
 
     private static final String CLIENT_ID = "12e51e7fd567478db5db871585124355";
     private static final String REDIRECT_URI = "dev.budde.spotifyqueue://callback";
@@ -130,7 +130,6 @@ public class MainActivity extends FlutterActivity {
 
         builder.setScopes(new String[]{"streaming","user-read-email"});
         AuthenticationRequest request = builder.build();
-
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
 
@@ -201,7 +200,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     private void invokeCurrentTrack(Track track){
-        List<String> song = Arrays.asList(track.name, track.artist.name, track.uri);
+        List<String> song = Arrays.asList(track.name, track.artist.name, track.uri, track.album.uri);
         methodChannel.invokeMethod("song", song);
     }
 

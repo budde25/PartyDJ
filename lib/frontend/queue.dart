@@ -87,7 +87,9 @@ class _QueueState extends State<Queue> {
                           return new Text('Error: ${snapshot.error}');
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
-                            return CircularProgressIndicator();
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
                           default:
                             return ListView(
                               children: snapshot.data.documents

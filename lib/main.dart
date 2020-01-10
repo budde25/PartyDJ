@@ -48,10 +48,12 @@ class _MyHomePageState extends State<MyHomePage> {
     startAuth();
   }
 
-  bool loading = false;
+  static bool loading;
+  static bool error;
 
   @override
   Widget build(BuildContext context) {
+
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -91,46 +93,46 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialButton(
               child: Text('Join queue'),
               onPressed: () => showDialog(
-                  context: context,
-                  builder: (BuildContext context) => _buildDialog(context)),
+                context: context,
+                builder: (context) {
+                  loading = false;
+                  error = false;
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      TextEditingController code = new TextEditingController();
+                      return SimpleDialog(
+                        title: !error ? Text('Enter Room Code') : Text('Error, Invalid Room Code'),
+                        shape: BeveledRectangleBorder(),
+                        children: <Widget>[
+                          TextField(
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(), labelText: 'Room Code'),
+                            controller: code,
+                            autocorrect: false,
+                            maxLength: 6,
+                          ),
+                          MaterialButton(
+                            onPressed: () {
+                              setState(() {
+                                error = false;
+                                joinQueue(code.text);
+                              });
+                            },
+                            textColor: Theme.of(context).primaryColor,
+                            child: const Text('Submit'),
+                          ),
+                        ],
+                      );
+                    }
+                  );
+                }
+              )
             ),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildDialog(BuildContext context) {
-    TextEditingController code = new TextEditingController();
-    loading = false;
-    if (!loading) {
-      return new AlertDialog(
-        title: const Text('Enter Room Code'),
-        shape: RoundedRectangleBorder(),
-        content: TextField(
-          decoration: InputDecoration(
-              border: OutlineInputBorder(), labelText: 'Room Code'),
-          controller: code,
-          autocorrect: false,
-          maxLength: 6,
-        ),
-        actions: <Widget>[
-          new MaterialButton(
-            onPressed: () => joinQueue(code.text),
-            textColor: Theme.of(context).primaryColor,
-            child: const Text('Submit'),
-          ),
-        ],
-      );
-    } else {
-      return new AlertDialog(
-        title: const Text('Enter Room Code'),
-        shape: RoundedRectangleBorder(),
-        content: new CircularProgressIndicator(),
-      );
-    }
-  }
-
   Future<void> joinQueue(String code) async {
     setState(() {
       loading = true;
@@ -142,6 +144,8 @@ class _MyHomePageState extends State<MyHomePage> {
     // room is not enabled
     if (owner == null) {
       setState(() {
+        error = true;
+        print('error');
         loading = false;
       });
       return;
@@ -152,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
           context,
           MaterialPageRoute(
               builder: (BuildContext context) => Queue(code, true)),
-          (_) => false);
+              (_) => false);
     } else {
       Navigator.push(
           context,
@@ -167,6 +171,6 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (BuildContext context) => Queue(code, true)),
-        (_) => false);
+            (_) => false);
   }
 }

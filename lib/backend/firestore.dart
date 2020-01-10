@@ -25,6 +25,16 @@ void addSong(
           {'name': name, 'artist': artist, 'track': track, 'image': image});
 }
 
+void setSong(String queue, String name, String artist, String track, String image){
+  Firestore.instance
+      .collection(queue)
+      .document('songs')
+      .collection('1')
+      .document('current')
+      .setData(
+      {'name': name, 'artist': artist, 'track': track, 'image': image});
+}
+
 String createQueue(String username) {
   String code = generateCode(6);
   Firestore.instance
