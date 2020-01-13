@@ -18,6 +18,14 @@ class _LoadingState extends State<Loading> {
     await Spotify.init();
 
     // check if user belongs in a queue
+    String queue = StorageUtil.getString('queue');
+    if (queue != '') {
+      Navigator.pushReplacementNamed(context, '/queue', arguments: {
+        'isOwner': true,
+        'queue': queue,
+      });
+      return;
+    }
 
     // After that finishes we can load the next page
     Navigator.pushReplacementNamed(context, '/home');

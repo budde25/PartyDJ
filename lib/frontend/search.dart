@@ -1,10 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:spotify_queue/frontend/queue.dart';
-import '../backend/spotify.dart';
-import '../backend/firestore.dart' as fs;
-import '../backend/platform.dart';
-import '../backend/song.dart';
+import 'package:spotify_queue/backend/song.dart';
+import 'package:spotify_queue/backend/spotify.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -12,24 +8,26 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
-  String lastSearch;
 
-  final TextEditingController searchController = new TextEditingController();
+  String lastSearch;
   List<Song> results = new List();
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      /* appBar: AppBar(
+      backgroundColor: Colors.green,
+      appBar: AppBar(
+        backgroundColor: Colors.green[800],
+        centerTitle: true,
           title: Text('Search'),
         ),
         body: Center(
           child: Column(
             children: <Widget>[
-              new Padding(
+              Padding(
                 padding: EdgeInsets.all(12),
-                child: new TextField(
-                  controller: searchController,
+                child: TextField(
                   decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Search for songs'),
@@ -45,13 +43,7 @@ class _SearchState extends State<Search> {
                         title: Text(results[index].name),
                         subtitle: Text(results[index].artist),
                         onTap: () {
-                          fs.addSong(
-                              queueId,
-                              results[index].name,
-                              results[index].artist,
-                              results[index].uri,
-                              results[index].imageUri);
-                          Navigator.pop(context);
+
                         },
                         leading: Image.network(results[index].imageUri),
                       );
@@ -62,19 +54,15 @@ class _SearchState extends State<Search> {
         ));
   }
 
-  // TODO search to not just pop with an expired token
   _search(String query) async {
     if (query == null || query == '' || query == lastSearch) return;
 
     lastSearch = query;
     results = new List();
 
-    Map search = await getSearchResults(query, token);
-    if (search == null) {
-      Navigator.pop(context);
-    }
+    Map search = await Spotify.getSearchResults(query);
 
-    List<dynamic> list = search['items'];
+    List<dynamic> list = search['tracks']['items'];
 
     setState(() {
       for (int i = 0; i < list.length; i++) {
@@ -89,7 +77,5 @@ class _SearchState extends State<Search> {
         results.add(song);
       }
     });
-  }*/
-    );
   }
 }

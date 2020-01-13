@@ -8,7 +8,7 @@ class Spotify {
   static final String _clientSecret = '';
   static final String _callbackUrl = 'dev.budde.spotifyqueue';
 
-  static final String _scope = 'user-read-private';
+  static final String _scope = 'user-read-private playlist-modify-private';
 
   static Future<void> init() async {
     // if this is the first login
@@ -20,8 +20,8 @@ class Spotify {
       await _requestUsername();
     }
 
-    // Check if the token has expired and reAuth
-    _checkTokenExpiration();
+    // Check if the token has expired and reAuthenticate
+    await _checkTokenExpiration();
   }
 
   static Future<void> _checkTokenExpiration() async {
@@ -78,7 +78,7 @@ class Spotify {
     String refreshToken = body['refresh_token'];
 
     // The number of milliseconds until the auth token expires, default: 3,600,000
-    int millisecondsToExpiration = int.parse(body['expires_in']) * 1000;
+    int millisecondsToExpiration = body['expires_in'] * 1000;
     int millisecondsSinceEpoch = DateTime.now().millisecondsSinceEpoch;
 
     int timeOfExpiration = millisecondsSinceEpoch + millisecondsToExpiration;
@@ -102,10 +102,10 @@ class Spotify {
     );
     final Map body = jsonDecode(response.body);
 
-    String accessToken = body['expires_in'];
+    String accessToken = body['access_token'];
 
     // The number of milliseconds until the auth token expires, default: 3,600,000
-    int millisecondsToExpiration = int.parse(body['expires_in']) * 1000;
+    int millisecondsToExpiration = body['expires_in'] * 1000;
     int millisecondsSinceEpoch = DateTime.now().millisecondsSinceEpoch;
 
     int timeOfExpiration = millisecondsSinceEpoch + millisecondsToExpiration;
@@ -130,7 +130,7 @@ class Spotify {
   }
 
   /// Returns Spotify search results for songs matching the specified query
-  static Future<void> getSearchResults(String query) async {
+  static Future<Map<String,dynamic>> getSearchResults(String query) async {
     await _checkTokenExpiration();
 
     final String url = Uri.encodeFull('https://api.spotify.com/v1/search?q=' +
