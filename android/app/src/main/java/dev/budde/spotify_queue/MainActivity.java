@@ -76,6 +76,7 @@ public class MainActivity extends FlutterActivity{
     }
 
     private void startSpotify() {
+        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
         ConnectionParams connectionParams =
                 new ConnectionParams.Builder(CLIENT_ID)
                         .setRedirectUri(REDIRECT_URI)

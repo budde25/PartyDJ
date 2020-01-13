@@ -1,3 +1,4 @@
+/*
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:spotify_queue/backend/platform.dart';
 import 'package:spotify_queue/backend/song.dart';
@@ -75,3 +76,4 @@ void playNextSong() {
   removeSong(queueId, song.id.toString());
   songs.remove(song);
 }
+*/

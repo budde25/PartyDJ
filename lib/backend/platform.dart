@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:spotify_queue/backend/SharedPreferences.dart';
+import 'package:spotify_queue/backend/storageUtil.dart';
 import 'package:spotify_queue/backend/song.dart';
 import 'package:spotify_queue/backend/spotify.dart';
 import 'package:spotify_queue/frontend/queue.dart';
@@ -21,7 +21,7 @@ String token;
   return token;
 }*/
 
-void login() async {
+/*void login() async {
   try {
     platform.invokeMethod('login');
   } on PlatformException catch (e) {
@@ -123,4 +123,4 @@ void authorized() async {
     }
   }
   print(username);
-}
+}*/

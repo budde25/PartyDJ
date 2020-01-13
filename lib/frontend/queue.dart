@@ -24,7 +24,7 @@ class Queue extends StatefulWidget {
   @override
   _QueueState createState() => _QueueState();
 
-  Queue(String id, bool owner) {
+  /*Queue(String id, bool owner) {
     isOwner = owner;
     if (id != null) {
       queueId = id;
@@ -33,7 +33,7 @@ class Queue extends StatefulWidget {
     }
     songs = new List();
     isStarted = false;
-  }
+  }*/
 }
 
 class _QueueState extends State<Queue> {
@@ -45,7 +45,7 @@ class _QueueState extends State<Queue> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      /* appBar: AppBar(
           leading: IconButton(
             icon: Icon(isOwner ? Icons.close : Icons.arrow_back),
             onPressed: () {
@@ -139,12 +139,11 @@ class _QueueState extends State<Queue> {
                         }
                       }))
             ],
-          ),
-        ));
-
+          ),)*/
+    );
   }
 
-  Widget _exit(BuildContext context) {
+/*Widget _exit(BuildContext context) {
     if (isOwner) {
       return AlertDialog(
         title: Text('Close Queue'),
@@ -304,5 +303,6 @@ class _NowPlayingState extends State<NowPlaying> {
     setState(() {
       isPaused = paused;
     });
-  }
+
+}*/
 }
