@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:spotify_queue/backend/functions.dart';
 import 'package:spotify_queue/backend/storageUtil.dart';
 
 class Queue extends StatefulWidget {
@@ -46,13 +48,35 @@ class _QueueState extends State<Queue> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green[800],
-        onPressed: () => Navigator.pushNamed(context, '/search'),
+        onPressed: () => Navigator.pushNamed(context, '/search', arguments: {
+          'queue': queue,
+        }),
         child: Icon(Icons.add),
         tooltip: 'Add Song',
       ),
       body: Center(
           child: Column(
             children: <Widget>[
+              Expanded(
+                child: StreamBuilder<DocumentSnapshot>(
+                  stream: Firestore.instance.collection('rooms').document(queue).snapshots(),
+                  builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  if (!snapshot.hasData) return const Text('Loading...');
+                  final int songCount = snapshot.data['songs'].length;
+                  return ListView.builder(
+                    itemCount: songCount,
+                    itemBuilder: (_, int index) {
+                      final List<dynamic> songs = snapshot.data['songs'];
+                      return ListTile(
+                        leading: Image.network(songs[index]['imageUrl']),
+                        title: Text(songs[index]['name']),
+                        subtitle: Text(songs[index]['artist']),
+                      );
+                    }
+                  );
+                }
+                ),
+              )
               ],
           ),
       ),
@@ -67,9 +91,11 @@ Widget _exit(BuildContext context) {
     if (isOwner) {
       title = 'Close Queue';
       content = 'Are you sure you want to end the queue?';
-      onPressed = () {
-        StorageUtil.putString('queue', '');
-        Navigator.pushReplacementNamed(context, '/home');
+      onPressed = () async {
+        if (await Functions.closeRoom(queue)) {
+          StorageUtil.putString('queue', '');
+          Navigator.pushReplacementNamed(context, '/home');
+        }
       };
     } else {
       title = 'Leave Queue';

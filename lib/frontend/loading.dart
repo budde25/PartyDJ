@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:spotify_queue/backend/functions.dart';
 import 'package:spotify_queue/backend/spotify.dart';
-import 'package:spotify_queue/backend/platform.dart';
 import 'package:spotify_queue/backend/storageUtil.dart';
 
 class Loading extends StatefulWidget {
@@ -34,7 +34,6 @@ class _LoadingState extends State<Loading> {
   @override
   void initState() {
     super.initState();
-    //platform.setMethodCallHandler(methodCallHandler);
     spotifyAuth();
   }
 

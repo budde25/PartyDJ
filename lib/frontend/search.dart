@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spotify_queue/backend/functions.dart';
 import 'package:spotify_queue/backend/song.dart';
 import 'package:spotify_queue/backend/spotify.dart';
 
@@ -9,11 +10,15 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
 
+  String queue;
   String lastSearch;
   List<Song> results = new List();
 
   @override
   Widget build(BuildContext context) {
+
+    Map args = ModalRoute.of(context).settings.arguments;
+    queue = args['queue'];
 
     return Scaffold(
       backgroundColor: Colors.green,
@@ -43,9 +48,9 @@ class _SearchState extends State<Search> {
                         title: Text(results[index].name),
                         subtitle: Text(results[index].artist),
                         onTap: () {
-
+                          Functions.addSong(queue, results[index].uri);
                         },
-                        leading: Image.network(results[index].imageUri),
+                        leading: Image.network(results[index].albumUrl),
                       );
                     }),
               )
@@ -55,6 +60,7 @@ class _SearchState extends State<Search> {
   }
 
   _search(String query) async {
+    // TODO only if not already in queue
     if (query == null || query == '' || query == lastSearch) return;
 
     lastSearch = query;
@@ -71,8 +77,7 @@ class _SearchState extends State<Search> {
         String uri = list[i]['uri'];
         String image = list[i]['album']['images'][2]['url'];
 
-        Song song = new Song(name, artist, uri);
-        song.imageUri = image;
+        Song song = new Song(name, artist, uri, image);
 
         results.add(song);
       }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:spotify_queue/backend/functions.dart';
 import 'package:spotify_queue/backend/storageUtil.dart';
 
 class Home extends StatefulWidget {
@@ -30,8 +31,10 @@ class _HomeState extends State<Home> {
                     color: Colors.grey[200],
                   ),
                 ),
-                onPressed: () {
-                  final String code = 'aaaaaa';
+                onPressed: () async {
+                  final String code = await Functions.generateRoom(StorageUtil.getString('username'));
+                  if (code == null) return;
+
                   StorageUtil.putString('queue', code);
                   Navigator.pushReplacementNamed(context, '/queue', arguments: {
                     'isOwner': true,
@@ -135,7 +138,7 @@ class JoinForm extends StatelessWidget {
                     )
                   ],
                 )
-                ]
+              ]
             ),
           ),
         ),
