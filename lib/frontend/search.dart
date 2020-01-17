@@ -15,12 +15,22 @@ class _SearchState extends State<Search> {
   String lastSearch;
   List<Song> results = new List();
   bool loading = false;
+  List<String> songsUri;
 
   @override
   Widget build(BuildContext context) {
+    songsUri = new List();
 
     Map args = ModalRoute.of(context).settings.arguments;
     queue = args['queue'];
+
+    List<dynamic> songs = args['songs'];
+
+    if (songs != null) {
+      for (Map uri in songs) {
+        songsUri.add(uri['uri']);
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -48,7 +58,20 @@ class _SearchState extends State<Search> {
                         title: Text(results[index].name),
                         subtitle: Text(results[index].artist),
                         onTap: () {
-                          Functions.addSong(queue, results[index].uri);
+                          Scaffold.of(context).removeCurrentSnackBar();
+                          if (songsUri != null && songsUri.contains(results[index].uri)) {
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                              content: Text(results[index].name + ' is already in the queue'),
+                              backgroundColor: Colors.green,
+                            ));
+                          } else {
+                            Functions.addSong(queue, results[index].uri);
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                              content: Text(results[index].name + ' was added to the queue'),
+                              backgroundColor: Colors.green,
+                            ));
+                          }
+                          songsUri.add(results[index].uri);
                         },
                         leading: Image.network(results[index].albumUrl),
                       );
@@ -65,7 +88,6 @@ class _SearchState extends State<Search> {
   }
 
   _search(String query) async {
-    // TODO only if not already in queue
     if (query == null || query == '' || query == lastSearch) return;
 
     setState(() {

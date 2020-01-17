@@ -116,6 +116,7 @@ class Functions {
       String accessToken = StorageUtil.getString('access_token');
       String playlistId = StorageUtil.getString('playlist_id');
 
+
       HttpsCallableResult response = await _removeSongCallable.call(<String, dynamic>{
         'roomCode': queue,
         'accessToken': accessToken,

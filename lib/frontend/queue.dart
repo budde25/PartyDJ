@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:spotify_queue/backend/functions.dart';
@@ -17,7 +18,8 @@ class _QueueState extends State<Queue> with WidgetsBindingObserver {
   String queue;
   bool isOwner;
   Song currentSongClient;
-  
+  List<dynamic> songs;
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +83,7 @@ class _QueueState extends State<Queue> with WidgetsBindingObserver {
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.pushNamed(context, '/search', arguments: {
           'queue': queue,
+          'songs': songs,
         }),
         child: Icon(Icons.add),
         tooltip: 'Add Song',
@@ -132,7 +135,7 @@ class _QueueState extends State<Queue> with WidgetsBindingObserver {
                     return ListView.builder(
                         itemCount: songCount,
                         itemBuilder: (_, int index) {
-                          final List<dynamic> songs = snapshot.data['songs'];
+                          songs = snapshot.data['songs'];
                           if (songs[index]['uri'] == currentSongClient.uri) {
                             return Container(
                               decoration: BoxDecoration(color: Colors.green),
@@ -140,6 +143,7 @@ class _QueueState extends State<Queue> with WidgetsBindingObserver {
                                   leading: Image.network(songs[index]['imageUrl']),
                                   title: Text(songs[index]['name']),
                                   subtitle: Text(songs[index]['artist']),
+                                  trailing: Text(songs[index]['addedBy']),
                               ),
                             );
                           } else {
@@ -147,6 +151,23 @@ class _QueueState extends State<Queue> with WidgetsBindingObserver {
                               leading: Image.network(songs[index]['imageUrl']),
                               title: Text(songs[index]['name']),
                               subtitle: Text(songs[index]['artist']),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Text(songs[index]['addedBy']),
+                                  isOwner || songs[index]['addedBy']  == StorageUtil.getString('username') ? IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () {
+                                      Scaffold.of(context).removeCurrentSnackBar();
+                                      Functions.removeSong(queue, songs[index]['uri']);
+                                      Scaffold.of(context).showSnackBar(SnackBar(
+                                        content: Text('Removing ${songs[index]['name']} from the queue'),
+                                        backgroundColor: Colors.green,
+                                      ));
+                                    },
+                                  ) : SizedBox.shrink()
+                                ],
+                              ),
                             );
                           }
                         }

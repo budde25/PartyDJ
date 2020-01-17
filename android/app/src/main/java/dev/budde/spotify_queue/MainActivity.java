@@ -12,6 +12,7 @@ import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
+import com.spotify.protocol.types.Repeat;
 import com.spotify.protocol.types.Track;
 
 import java.util.Arrays;
@@ -128,6 +129,8 @@ public class MainActivity extends FlutterActivity{
 
 
     private void connected(){
+        mSpotifyAppRemote.getPlayerApi().setShuffle(false);
+        mSpotifyAppRemote.getPlayerApi().setRepeat(Repeat.OFF);
         mSpotifyAppRemote.getPlayerApi().subscribeToPlayerState()
                 .setEventCallback(playerState -> {
                     invokeCurrentTrack(playerState.track);

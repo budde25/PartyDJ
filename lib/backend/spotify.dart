@@ -8,7 +8,7 @@ class Spotify {
   static final String _clientSecret = '';
   static final String _callbackUrl = 'dev.budde.spotifyqueue';
 
-  static final String _scope = 'user-read-private playlist-modify-public user-modify-playback-state';
+  static final String _scope = 'user-read-private playlist-modify-public user-modify-playback-state streaming';
 
   static Future<void> init() async {
 
