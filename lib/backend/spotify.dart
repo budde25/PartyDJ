@@ -8,7 +8,7 @@ class Spotify {
   static final String _clientSecret = '';
   static final String _callbackUrl = 'dev.budde.spotifyqueue';
 
-  static final String _scope = 'user-read-private playlist-modify-public';
+  static final String _scope = 'user-read-private playlist-modify-public user-modify-playback-state';
 
   static Future<void> init() async {
 
@@ -156,5 +156,87 @@ class Spotify {
     );
 
     return jsonDecode(response.body);
+  }
+
+  static Future<void> _setRepeatOff() async {
+    await checkTokenExpiration();
+
+    final String url = Uri.encodeFull('https://api.spotify.com/v1/me/player/repeat?state=off');
+    await put(
+      url,
+      headers: {
+        'Authorization': 'Bearer ${StorageUtil.getString('access_token')}',
+      },
+    );
+  }
+
+  static Future<void> _setShuffleOff() async {
+    await checkTokenExpiration();
+
+    final String url = Uri.encodeFull('https://api.spotify.com/v1/me/player/shuffle?state=false');
+    await put(
+      url,
+      headers: {
+        'Authorization': 'Bearer ${StorageUtil.getString('access_token')}',
+      },
+    );
+  }
+
+  static Future<bool> startPlaylist() async {
+    await _setRepeatOff();
+    await _setShuffleOff();
+
+  }
+
+  static Future<bool> play() async {
+    await checkTokenExpiration();
+
+    final String url = Uri.encodeFull('https://api.spotify.com/v1/me/player/play');
+    await put(
+      url,
+      headers: {
+        'Authorization': 'Bearer ${StorageUtil.getString('access_token')}',
+      },
+    );
+    return true;
+  }
+
+  static Future<bool> pause() async {
+    await checkTokenExpiration();
+
+    final String url = Uri.encodeFull('https://api.spotify.com/v1/me/player/pause');
+    await put(
+      url,
+      headers: {
+        'Authorization': 'Bearer ${StorageUtil.getString('access_token')}',
+      },
+    );
+    return true;
+  }
+
+  static Future<bool> next() async {
+    await checkTokenExpiration();
+
+    final String url = Uri.encodeFull('https://api.spotify.com/v1/me/player/next');
+    await post(
+      url,
+      headers: {
+        'Authorization': 'Bearer ${StorageUtil.getString('access_token')}',
+      },
+    );
+    return true;
+  }
+
+  static Future<bool> previous() async {
+    await checkTokenExpiration();
+
+    final String url = Uri.encodeFull('https://api.spotify.com/v1/me/player/previous');
+    await post(
+      url,
+      headers: {
+        'Authorization': 'Bearer ${StorageUtil.getString('access_token')}',
+      },
+    );
+    return true;
   }
 }

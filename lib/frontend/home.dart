@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:spotify_queue/backend/functions.dart';
 import 'package:spotify_queue/backend/storageUtil.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -9,10 +10,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green,
       resizeToAvoidBottomInset: false,
       body: Center(
         child: Padding(
@@ -32,12 +33,29 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 onPressed: () async {
+                  showDialog(context: context,
+                      barrierDismissible: false,
+                      child: AlertDialog(
+                        content: ConstrainedBox(
+                          constraints: BoxConstraints(maxHeight: 150),
+                          child: SpinKitDoubleBounce(
+                            color: Colors.green,
+                            size: 40.0,
+                          ),
+                        ),
+                      ),
+                  );
                   final String code = await Functions.generateRoom(StorageUtil.getString('username'));
-                  if (code == null) return;
+
+                  // function failed
+                  if (code == null) {
+                    Navigator.pop(context);
+                    return;
+                  }
 
                   StorageUtil.putString('queue', code);
+                  await StorageUtil.putString('is_owner', "true");
                   Navigator.pushReplacementNamed(context, '/queue', arguments: {
-                    'isOwner': true,
                     'queue': code,
                   });
                 },
@@ -79,7 +97,6 @@ class JoinForm extends StatelessWidget {
     TextEditingController code = new TextEditingController();
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.green,
       body: Center(
         child: Padding(
           padding: EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -128,15 +145,49 @@ class JoinForm extends StatelessWidget {
                               ),
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/queue', arguments: {
-                            'isOwner': false,
-                            'queue': code.text,
-                          });
+                        onPressed: () async {
+                          if (code.text.length == 6) {
+                            showDialog(context: context,
+                              barrierDismissible: false,
+                              child: AlertDialog(
+                                content: ConstrainedBox(
+                                  constraints: BoxConstraints(maxHeight: 150),
+                                  child: SpinKitDoubleBounce(
+                                    color: Colors.green,
+                                    size: 40.0,
+                                  ),
+                                ),
+                              ),
+                            );
+                            if (await Functions.joinRoom(code.text)) {
+                              await StorageUtil.putString('is_owner', "false");
+                              Navigator.pushReplacementNamed(context, '/queue', arguments: {
+                                'queue': code.text,
+                              });
+                            } else {
+                              Navigator.pop(context);;
+                            }
+                          }
                         },
                       ),
-                    )
+                    ),
                   ],
+                ),
+                SizedBox(height: 30,),
+                MaterialButton(
+                  color: Colors.green[800],
+                  child: Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Text(
+                      'Scan',
+                      style: TextStyle(
+                        fontSize: 30,
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/qr');
+                  },
                 )
               ]
             ),

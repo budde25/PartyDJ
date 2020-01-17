@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spotify_queue/backend/functions.dart';
 import 'package:spotify_queue/backend/song.dart';
 import 'package:spotify_queue/backend/spotify.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -13,6 +14,7 @@ class _SearchState extends State<Search> {
   String queue;
   String lastSearch;
   List<Song> results = new List();
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +23,7 @@ class _SearchState extends State<Search> {
     queue = args['queue'];
 
     return Scaffold(
-      backgroundColor: Colors.green,
       appBar: AppBar(
-        backgroundColor: Colors.green[800],
         centerTitle: true,
           title: Text('Search'),
         ),
@@ -41,7 +41,7 @@ class _SearchState extends State<Search> {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
+                child: !loading ? ListView.builder(
                     itemCount: results.length,
                     itemBuilder: (BuildContext context, int index) {
                       return ListTile(
@@ -52,7 +52,12 @@ class _SearchState extends State<Search> {
                         },
                         leading: Image.network(results[index].albumUrl),
                       );
-                    }),
+                    }) : Center(
+                  child: SpinKitDoubleBounce(
+                    color: Colors.green,
+                    size: 40.0,
+                  ),
+                ),
               )
             ],
           ),
@@ -62,6 +67,10 @@ class _SearchState extends State<Search> {
   _search(String query) async {
     // TODO only if not already in queue
     if (query == null || query == '' || query == lastSearch) return;
+
+    setState(() {
+      loading = true;
+    });
 
     lastSearch = query;
     results = new List();
@@ -81,6 +90,7 @@ class _SearchState extends State<Search> {
 
         results.add(song);
       }
+      loading = false;
     });
   }
 }
