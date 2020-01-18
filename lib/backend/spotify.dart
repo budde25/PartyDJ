@@ -13,14 +13,10 @@ class Spotify {
   static Future<void> init() async {
 
     // if this is the first login
-    bool finished = false;
-    while (!finished) {
-      try {
-        finished = await _requestAccessToken();
-      } catch (e) {
-        finished = false;
-      }
+    while (StorageUtil.getString('access_token') == '') {
+      await _requestAccessToken();
     }
+
 
     while (StorageUtil.getString('username') == '') {
       await _requestUsername();
@@ -55,11 +51,12 @@ class Spotify {
   }
 
   static Future<String> _requestAuthCode() async {
-    final result = await FlutterWebAuth.authenticate(
-        url: _constructUrl(), callbackUrlScheme: _callbackUrl);
-    return Uri
-        .parse(result)
-        .queryParameters['code'];
+      String result = await FlutterWebAuth.authenticate(
+          url: _constructUrl(), callbackUrlScheme: _callbackUrl).catchError((error) {
+            print(error);
+            return null;
+      });
+      return Uri.parse(result).queryParameters['code'];
   }
 
   /// Sets the initial access token, refresh token
@@ -138,7 +135,7 @@ class Spotify {
       },
     );
 
-    String username = jsonDecode(response.body)['display_name'];
+    String username = jsonDecode(response.body)['id'];
     StorageUtil.putString('username', username);
   }
 

@@ -7,6 +7,7 @@ import 'package:spotify_queue/backend/storageUtil.dart';
 import 'package:spotify_queue/backend/platform.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:spotify_queue/backend/song.dart';
+import 'package:share/share.dart';
 
 class Queue extends StatefulWidget {
   @override
@@ -230,17 +231,29 @@ Widget _exit(BuildContext context) {
                   Text(
                     'Room Code',
                     style: TextStyle(
-                      fontSize: 36,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                   SizedBox(height: 20),
-                  SelectableText(
-                    queue,
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.white
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SelectableText(
+                            queue,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white
+                            ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.share),
+                        onPressed: () {
+                          Share.share('Join my song queue with code: $queue');
+                        },
+                      )
+                    ],
                   ),
                   SizedBox(height: 30),
                   Expanded(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:spotify_queue/backend/functions.dart';
 import 'package:spotify_queue/backend/spotify.dart';
 import 'package:spotify_queue/backend/storageUtil.dart';
 
@@ -41,10 +40,17 @@ class _LoadingState extends State<Loading> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.green,
-      body: Center(
-        child: SpinKitDoubleBounce(
-          color: Colors.white,
-          size: 80.0,
+      body: InkWell(
+        onTap: () {
+          if (StorageUtil.getString('access_token') == '') {
+            Spotify.init();
+          }
+        },
+        child: Center(
+          child: SpinKitDoubleBounce(
+            color: Colors.white,
+            size: 80.0,
+          ),
         ),
       )
     );

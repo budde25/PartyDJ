@@ -11,7 +11,7 @@ description: A party song queuing app
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -28,13 +28,21 @@ dependencies:
   cloud_firestore: ^0.13.0+1
   flutter_spinkit: ^4.1.1+1
   flutter_web_auth: ^0.1.2
-  cloud_functions: 0.4.1+6
-  qr_flutter: 3.2.0
-  qr_code_scanner: 0.0.12
+  cloud_functions: ^0.4.1+6
+  qr_flutter: ^3.2.0
+  qr_code_scanner: ^0.0.12
+  share: ^0.6.3+5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.7.3
+
+flutter_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/icons/android/iconCircle.png"
+  image_path_ios: "assets/icons/ios/iTunesArtwork@3x.png"
 
 
 # For information on the generic Dart part of this file, see the
