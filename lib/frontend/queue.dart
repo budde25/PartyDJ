@@ -1,204 +1,281 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'search.dart';
-import '../backend/platform.dart';
-import '../backend/song.dart';
-import '../backend/utils.dart';
-import '../backend/firestore.dart';
-
-String queueId;
-List<Song> songs;
-
-Song currentSongClient;
-Song currentSongOwner;
-
-bool isPaused;
-bool isOwner;
-bool isStarted;
-
-Function setCurrentSong;
-Function setIsPlaying;
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:spotify_queue/backend/functions.dart';
+import 'package:spotify_queue/backend/storageUtil.dart';
+import 'package:spotify_queue/backend/platform.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:spotify_queue/backend/song.dart';
+import 'package:share/share.dart';
 
 class Queue extends StatefulWidget {
   @override
   _QueueState createState() => _QueueState();
-
-  Queue(String id, bool owner) {
-    isOwner = owner;
-    if (id != null) {
-      queueId = id;
-    } else {
-      queueId = generateCode(6);
-    }
-    songs = new List();
-    isStarted = false;
-  }
 }
 
-class _QueueState extends State<Queue> {
+class _QueueState extends State<Queue> with WidgetsBindingObserver {
+
+  String queue;
+  bool isOwner;
+  Song currentSongClient;
+  List<dynamic> songs;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    isOwner = StorageUtil.getString('is_owner') == 'true' ? true : false;
+
+    if (isOwner) {
+      // sets the method call handler
+      Platform.methodChannel.setMethodCallHandler(Platform.methodCallHandler);
+
+      // connect spotify sdk
+      Platform.connectSpotify();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.resumed) {
+      Platform.connectSpotify();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+
+    Map args = ModalRoute.of(context).settings.arguments;
+    queue = args['queue'];
+
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(isOwner ? Icons.close : Icons.arrow_back),
+      appBar: AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(isOwner ? Icons.close : Icons.arrow_back),
+          onPressed: () {
+            showDialog(
+              context: context, builder: (BuildContext context) => _exit(context),
+            );
+          },
+        ),
+        title: Text('Song Queue'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.share),
             onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) => _exit(context),
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) => share(context),
               );
             },
-          ),
-          title: Text('Song Queue'),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.share),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => _buildDialog(context),
-                );
-              },
-            )
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.push(context,
-              MaterialPageRoute(builder: (BuildContext context) => Search())),
-          child: Icon(Icons.add),
-          tooltip: 'add song',
-        ),
-        body: Center(
+          )
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, '/search', arguments: {
+          'queue': queue,
+          'songs': songs,
+        }),
+        child: Icon(Icons.add),
+        tooltip: 'Add Song',
+      ),
+      body: Center(
           child: Column(
             children: <Widget>[
               NowPlaying(),
               Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                      stream: Firestore.instance
-                          .collection(queueId)
-                          .document('songs')
-                          .collection('1')
-                          .snapshots(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<QuerySnapshot> snapshot) {
-                        if (snapshot.hasError)
-                          return Center (
-                            child: Text('Error: ${snapshot.error}')
-                          );
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.waiting:
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          default:
-                            return ListView(
-                              children: snapshot.data.documents
-                                  .map((DocumentSnapshot document) {
-                                // Adding to the array
-                                String name = document['name'];
-                                String artist = document['artist'];
-                                String track = document['track'];
+                child: buildStreamBuilder(),
+              )
+              ],
+          ),
+      ),
+    );
+  }
 
-                                Song song = new Song(name, artist, track);
-                                if (document.documentID == 'current') {
-                                  currentSongClient = song;
-                                } else {
-                                  int id = int.parse(document.documentID);
-                                  song.id = id;
-                                  if (!songs.contains(song)) {
-                                    songs.add(song);
-                                  }
-                                }
+  StreamBuilder<DocumentSnapshot> buildStreamBuilder() {
+    return StreamBuilder<DocumentSnapshot>(
+                stream: Firestore.instance.collection('rooms').document(queue).snapshots(),
+                builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (snapshot.hasError) return Text('Error');
+                if (!snapshot.hasData ) return Text('No items');
+                switch (snapshot.connectionState) {
+                  case ConnectionState.waiting:
+                    return Center(
+                      child: SpinKitDoubleBounce(
+                          color: Colors.green,
+                          size: 80.0,
+                      )
+                    );
+                  default:
 
-                                if (isOwner) {
-                                  return ListTile(
-                                    title: Text(document['name']),
-                                    subtitle: Text(document['artist']),
-                                    leading: Image.network(document['image']),
-                                    trailing: IconButton(
-                                      icon: Icon(Icons.delete),
-                                      onPressed: () => removeSong(
-                                          queueId, document.documentID),
-                                    ),
-                                  );
-                                } else {
-                                  return ListTile(
-                                    title: Text(document['name']),
-                                    subtitle: Text(document['artist']),
-                                    leading: Image.network(document['image']),
-                                  );
-                                }
-                              }).toList(),
+                    // should be not needed but stops the errors
+                    if (snapshot.data == null) {
+                      return Center(
+                          child: SpinKitDoubleBounce(
+                            color: Colors.green,
+                            size: 80.0,
+                          )
+                      );
+                    }
+
+                    // parse current song
+                    Map current = snapshot.data['currentSong'];
+                    currentSongClient = new Song(current['name'], current['artist'], current['uri'], current['imageUrl']);
+
+                    final int songCount = snapshot.data['songs'].length;
+                    return ListView.builder(
+                        itemCount: songCount,
+                        itemBuilder: (_, int index) {
+                          songs = snapshot.data['songs'];
+                          if (songs[index]['uri'] == currentSongClient.uri) {
+                            return Container(
+                              decoration: BoxDecoration(color: Colors.green),
+                              child: ListTile(
+                                  leading: Image.network(songs[index]['imageUrl']),
+                                  title: Text(songs[index]['name']),
+                                  subtitle: Text(songs[index]['artist']),
+                                  trailing: Text(songs[index]['addedBy']),
+                              ),
                             );
+                          } else {
+                            return ListTile(
+                              leading: Image.network(songs[index]['imageUrl']),
+                              title: Text(songs[index]['name']),
+                              subtitle: Text(songs[index]['artist']),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Text(songs[index]['addedBy']),
+                                  isOwner || songs[index]['addedBy']  == StorageUtil.getString('username') ? IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () {
+                                      Scaffold.of(context).removeCurrentSnackBar();
+                                      Functions.removeSong(queue, songs[index]['uri']);
+                                      Scaffold.of(context).showSnackBar(SnackBar(
+                                        content: Text('Removing ${songs[index]['name']} from the queue'),
+                                        backgroundColor: Colors.green,
+                                      ));
+                                    },
+                                  ) : SizedBox.shrink()
+                                ],
+                              ),
+                            );
+                          }
                         }
-                      }))
-            ],
-          ),
-        ));
-
+                    );
+                }
+              }
+              );
   }
 
-  Widget _exit(BuildContext context) {
+Widget _exit(BuildContext context) {
+    String title;
+    String content;
+    Function onPressed;
+
     if (isOwner) {
-      return AlertDialog(
-        title: Text('Close Queue'),
-        content: Text('Are you sure you want to end the queue?'),
-        actions: <Widget>[
-          MaterialButton(
-            child: Text('Yes'),
-            onPressed: () => _leave(),
-          ),
-          MaterialButton(
-            child: Text('No'),
-            onPressed: () => Navigator.pop(context),
-          )
-        ],
-      );
+      title = 'Close Queue';
+      content = 'Are you sure you want to end the queue?';
+      onPressed = () async {
+
+        // Hopefully function finishes otherwise we are left with a floating song in database
+        Navigator.pushReplacementNamed(context, '/home');
+        StorageUtil.putString('queue', '');
+        StorageUtil.putString('is_owner', '');
+        Functions.closeRoom(queue);
+
+      };
     } else {
-      return AlertDialog(
-        title: Text('Leave Queue'),
-        content: Text('Are you sure you want to leave the queue?'),
+      title = 'Leave Queue';
+      content = 'Are you sure you want to leave the queue?';
+      onPressed = () {
+        StorageUtil.putString('is_owner', '');
+        Navigator.pushReplacementNamed(context, '/home');
+      };
+    }
+
+    return AlertDialog(
+      title: Text(title),
+      content: Text(content),
         actions: <Widget>[
-          MaterialButton(
-            child: Text('Yes'),
-            onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false),
-          ),
           MaterialButton(
             child: Text('No'),
             onPressed: () => Navigator.pop(context),
-          )
+          ),
+          MaterialButton(
+            child: Text('Yes'),
+            onPressed: onPressed,
+          ),
         ],
       );
     }
-  }
 
-  Future<void> _leave() async {
-    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
-    destroyQueue(queueId);
-  }
-
-  Widget _buildDialog(BuildContext context) {
-    return AlertDialog(
-        title: const Text('Room Code'),
-        content: SelectableText(queueId));
+  Widget share(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(24, 24, 24, 0),
+          child: Form(
+            child: Column(
+                children: <Widget> [
+                  Text(
+                    'Room Code',
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SelectableText(
+                            queue,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white
+                            ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.share),
+                        onPressed: () {
+                          Share.share('Join my song queue with code: $queue');
+                        },
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 30),
+                  Expanded(
+                    child: QrImage(
+                      foregroundColor: Colors.green,
+                      data: queue,
+                      version: QrVersions.auto,
+                      size: 250,
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                ]
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
-Song getNextSong() {
-  Song min = songs[0];
-  for (Song song in songs) {
-    if (song.id < min.id) {
-      min = song;
-    }
-  }
-  return min;
-}
+Function setCurrentSong;
+Function setIsPlaying;
 
 class NowPlaying extends StatefulWidget {
   @override
@@ -206,103 +283,119 @@ class NowPlaying extends StatefulWidget {
 }
 
 class _NowPlayingState extends State<NowPlaying> {
+
+  bool isOwner;
+  bool isPaused;
+  bool started;
+
   @override
   void initState() {
     super.initState();
     setCurrentSong = _refresh;
     setIsPlaying = _playing;
+    isOwner = StorageUtil.getString('is_owner')  == 'true' ? true : false;
+    isPaused = true;
+    started = false;
   }
+
+  Song currentSongOwner;
+  Song currentSongClient;
 
   @override
   Widget build(BuildContext context) {
-    if (!isStarted && isOwner) {
-      return Padding(
-        padding: EdgeInsets.all(12),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(),
-          ),
-          child: ListTile(
-            leading: currentSongOwner == null ? null : Image.network(currentSongOwner.imageUri),
-            title: Text(
-                currentSongOwner == null ? 'No song playing' : currentSongOwner.name),
-            subtitle: Text(currentSongOwner == null ? '' : currentSongOwner.artist),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text('Start'),
-                IconButton(
-                  icon: Icon(Icons.play_arrow),
-                  onPressed: () {
-                    setState(() {
-                      if (songs.length > 0) {
-                        isStarted = true;
-                        playNextSong();
-                      }
-                    });
-                  },
-                ),
-              ],
+
+    if (!isOwner) {
+      return SizedBox(height: 10,);
+    }
+
+      return Column(
+        children: <Widget>[
+          SizedBox(height: 20,),
+          buildListTile(),
+          Text(
+            'Queue',
+            style: TextStyle(
+              fontSize: 24,
             ),
           ),
-        ),
+          SizedBox(height: 10,),
+        ],
       );
-    } else if (isOwner) {
-      return Padding(
-        padding: EdgeInsets.all(12),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(),
+
+  }
+
+  ListTile buildListTile() {
+      return ListTile(
+          leading: currentSongOwner == null ? null : Image.network(currentSongOwner.albumUrl),
+          title: Text(currentSongOwner == null ? 'No song playing' : currentSongOwner.name),
+          subtitle: Text(currentSongOwner == null ? '' : currentSongOwner.artist),
+          trailing: buildRow(),
+      );
+  }
+
+  Row buildRow() {
+    if (!started) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(Icons.play_arrow),
+            onPressed: () {
+              setState(() {
+                String playlistId = StorageUtil.getString('playlist_id');
+                Platform.playItem('spotify:playlist:$playlistId');
+                started = true;
+              });
+            },
           ),
-          child: ListTile(
-            leading: currentSongOwner == null ? null : Image.network(currentSongOwner.imageUri),
-            title: Text(
-                currentSongOwner == null ? 'No song playing' : currentSongOwner.name),
-            subtitle: Text(currentSongOwner == null ? '' : currentSongOwner.artist),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(isPaused == true ? Icons.play_arrow : Icons.pause),
-                  onPressed: () => isPaused == true ? play() : pause(),
-                ),
-                IconButton(
-                  icon: Icon(Icons.skip_next),
-                  onPressed: () => skip(),
-                )
-              ],
-            ),
-          ),
-        ),
+        ],
       );
     } else {
-      return Padding(
-        padding: EdgeInsets.all(12),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(),
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(Icons.skip_previous),
+            onPressed: () => Platform.skipPrevious(),
           ),
-          child: ListTile(
-            leading: Image.network(currentSongClient.imageUri),
-            title: Text(
-                currentSongClient == null ? 'No song playing' : currentSongOwner.name),
-            subtitle: Text(currentSongOwner == null ? '' : currentSongOwner.artist),
+          IconButton(
+            icon: Icon(isPaused == true ? Icons.play_arrow : Icons.pause),
+            onPressed: () { isPaused ? Platform.play() : Platform.pause(); },
           ),
-        ),
+          IconButton(
+            icon: Icon(Icons.skip_next),
+            onPressed: () => Platform.skipNext(),
+          )
+        ],
       );
     }
   }
 
+
   void _refresh(Song song) {
     setState(() {
-      currentSongOwner = song;
-      setSong(queueId, song.name, song.artist, song.uri, song.imageUri);
+      if (song != currentSongOwner && song != null) {
+        currentSongOwner = song;
+        firestoreSetCurrentSong(song);
+      }
     });
   }
 
   void _playing(bool paused) {
     setState(() {
       isPaused = paused;
+    });
+  }
+
+  Future<void> firestoreSetCurrentSong(Song song) async {
+    String queue = StorageUtil.getString('queue');
+    Firestore.instance.collection('rooms').document(queue).updateData({
+      'currentSong': {
+        'name': song.name,
+        'artist': song.artist,
+        'uri': song.uri,
+        'imageUrl': song.albumUrl,
+      }
     });
   }
 }

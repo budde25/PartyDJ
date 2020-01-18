@@ -1,126 +1,78 @@
 import 'package:flutter/services.dart';
-import 'package:spotify_queue/backend/SharedPreferences.dart';
-import 'package:spotify_queue/backend/song.dart';
-import 'package:spotify_queue/backend/spotify.dart';
 import 'package:spotify_queue/frontend/queue.dart';
+import 'song.dart';
 
-import '../backend/firestore.dart';
+class Platform {
+  static final MethodChannel methodChannel = MethodChannel('dev.budde.spotify_queue');
 
-const MethodChannel platform = MethodChannel('dev.budde.spotify_queue');
-
-String username;
-String token;
-
-/*Future<String> getToken() async {
-  String token;
-  try {
-    token = await platform.invokeMethod('token');
-  } on PlatformException catch (e) {
-    print(e.message);
-  }
-  return token;
-}*/
-
-void login() async {
-  try {
-    platform.invokeMethod('login');
-  } on PlatformException catch (e) {
-    print(e.message);
-  }
-}
-
-void startSpotify() async {
-  try {
-    platform.invokeMethod('spotify');
-  } on PlatformException catch (e) {
-    print(e.message);
-  }
-}
-
-void playSong(String track) async {
-  try {
-    platform.invokeMethod('playSong', <String, String>{'track': track});
-  } on PlatformException catch (e) {
-    print(e.message);
-  }
-}
-
-void play() async {
-  try {
-    platform.invokeMethod('play');
-  } on PlatformException catch (e) {
-    print(e.message);
-  }
-}
-
-void pause() async {
-  try {
-    platform.invokeMethod('pause');
-  } on PlatformException catch (e) {
-    print(e.message);
-  }
-}
-
-void skip() async {
-  try {
-    platform.invokeMethod('skip');
-  } on PlatformException catch (e) {
-    print(e.message);
-  }
-}
-
-// TODO fix unexpected method calls
-Future<void> methodCallHandler(MethodCall call) {
-  try {
-    switch (call.method) {
-      case "trackEnd":
-        playNextSong();
-        print('Song Ended');
-        break;
-      case "song":
-        List<dynamic> args = call.arguments;
-        Song song = new Song(
-            args[0].toString(), args[1].toString(), args[2].toString());
-        String imageUri = args[3].toString().split(':')[2];
-        song.imageUri = 'https://i.scdn.co/image/$imageUri';
-        setCurrentSong(song);
-        break;
-      case "isPaused":
-        bool isPaused = call.arguments;
-        setIsPlaying(isPaused);
-        break;
-      case "authorized":
-        setToken(call.arguments);
-        authorized();
-        break;
-      default:
-        print('Error: unexpected methodcall');
-    }
-  } catch (e) {
-    print(e);
-  }
-  return null;
-}
-
-void startAuth() async {
-  bool isToken = await tokenExists();
-  if (!isToken) {
-    login();
-  } else {
-    authorized();
-  }
-}
-
-void authorized() async {
-  token = await getToken();
-
-  bool isUsername = await usernameExists();
-  if (!isUsername) {
-    Map<String, dynamic> userData = await getUserData(token);
-    String username = userData['display_name'];
-    if (username != "Unable to retrieve username" && username != null) {
-      setUsername(username);
+  static Future<void> connectSpotify() async {
+    try {
+      methodChannel.invokeMethod('connect');
+    } on PlatformException catch (e) {
+      print(e.message);
     }
   }
-  print(username);
+
+  static Future<void> play() async {
+    try {
+      methodChannel.invokeMethod('play');
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+  }
+
+  static Future<void> pause() async {
+    try {
+      methodChannel.invokeMethod('pause');
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+  }
+
+  static Future<void> skipNext() async {
+    try {
+      methodChannel.invokeMethod('skip_next');
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+  }
+
+  static Future<void> skipPrevious() async {
+    try {
+      methodChannel.invokeMethod('skip_previous');
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+  }
+
+  static Future<void> playItem(String uri) async {
+    try {
+      methodChannel.invokeMethod('play_song', <String, String>{'track': uri});
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+  }
+
+  static Future<void> methodCallHandler(MethodCall call) {
+    try {
+      switch (call.method) {
+        case "song":
+          List<dynamic> args = call.arguments;
+          String imageUrl = 'https://i.scdn.co/image/' + (args[3].split(':')[2]);
+          Song song = new Song(args[0], args[1], args[2], imageUrl);
+          setCurrentSong(song);
+          break;
+        case "isPaused":
+          bool isPaused = call.arguments;
+          setIsPlaying(isPaused);
+          break;
+        default:
+          print('Error: unexpected methodcall');
+      }
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
 }

@@ -1,15 +1,11 @@
 class Song {
-  String name;
-  String artist;
-  String uri;
+  final String name;
+  final String artist;
+  final String uri;
+  final String albumUrl;
   int id;
-  String imageUri;
 
-  Song(String name, String artist, String track) {
-    this.name = name;
-    this.artist = artist;
-    this.uri = track;
-  }
+  Song(this.name, this.artist, this.uri, this.albumUrl);
 
   bool operator ==(o) => o is Song && o.name == name && o.uri == uri;
 
