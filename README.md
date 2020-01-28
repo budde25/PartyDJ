@@ -1,17 +1,20 @@
-# spotify_queue
+# Party DJ
 
 A party song queing app
 
-## Getting Started
+Available on google play store: [Party DJ](https://play.google.com/store/apps/details?id=dev.budde.spotify_queue)
 
-This project is a starting point for a Flutter application.
+[Firebase backend](https://github.com/budde25/queue-backend)
 
-A few resources to get you started if this is your first Flutter project:
+Party DJ is a Spotify queue manager that allows everyone to have a say in what is played. 
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Features:  
+Seamless Spotify integration with the complete Spotify library.  
+Ability to host or join a queue using simple 6 digit codes.  
+QR code support for easy join and sharing.  
+The host has ultimate control being able to add/remove any song as well as skip, previous, pause and play straight from the app.  
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# SpotifyQueue
+Disclaimer:  
+Spotify premium is required for use with the app as well as Spotify being installed onto the device that you intend to host the queue on.  
+
+![diagram of app](diagram.png "Diagram")
