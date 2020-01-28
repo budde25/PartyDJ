@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1076579268311-qf7kiih7ssngvcorjc06j4tk2ir2op0a.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1076579268311-qf7kiih7ssngvcorjc06j4tk2ir2op0a</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>1076579268311-c6h2k0opvk171t6h2mbvlbbfi7nhu6ue.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDI98DLQ19yjsUGeH6C-vzFpdTJUuB8mgw</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1076579268311</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>dev.budde.spotify-queue</string>
+	<key>PROJECT_ID</key>
+	<string>spotifyqueue-1477b</string>
+	<key>STORAGE_BUCKET</key>
+	<string>spotifyqueue-1477b.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1076579268311:ios:744ffe484bd8c9194ca292</string>
+	<key>DATABASE_URL</key>
+	<string>https://spotifyqueue-1477b.firebaseio.com</string>
+</dict>
+</plist>
