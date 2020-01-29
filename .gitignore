@@ -37,3 +37,5 @@ lib/generated_plugin_registrant.dart
 
 # Key
 android/key.properties
+
+ios/GoogleService-Info.plist
