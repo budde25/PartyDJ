@@ -86,27 +86,49 @@ import Firebase
       (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
         // Note: this method is invoked on the UI thread.
         
-        guard call.method == "play_song" else {
-            self.appRemote.authorizeAndPlayURI(call.arguments)
-            return
-        }
-        guard call.method == "play" else {
-           
-            return
-        }
-        guard call.method == "pause" else {
-          
-            return
-        }
-        guard call.method == "skip_next" else {
+        if call.method == "play_song" {
+            guard let args = call.arguments else {
+                result("iOS could not recognize flutter arguments method: (play_song)")
+                return
+            }
+            
+            if let myArgs = args as? [String: Any],
+            let track = myArgs["someInfo1"] as? String {
+                self.appRemote.authorizeAndPlayURI(track)
+            } else {
+            result("iOS could not extract flutter arguments in method: (sendParams)")
+            }
             
             return
         }
-        guard call.method == "skip_previous" else {
-            
+        else if call.method == "play" {
             return
         }
-        guard call.method == "connect" else {
+        else if call.method == "pause" {
+            self.appRemote.playerAPI?.pause({ (result, error) in
+              if let error = error {
+                  debugPrint(error.localizedDescription)
+              }
+          })
+          return
+        }
+        else if call.method == "skip_next" {
+            self.appRemote.playerAPI?.skip(toNext: { (result, error) in
+                if let error = error {
+                    debugPrint(error.localizedDescription)
+                }
+            })
+            return
+        }
+        else if call.method == "skip_previous" {
+            self.appRemote.playerAPI?.skip(toPrevious: { (result, error) in
+                if let error = error {
+                    debugPrint(error.localizedDescription)
+    }
+            })
+            return
+        }
+        else if call.method == "connect" {
             return
         }
     })
