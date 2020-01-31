@@ -23,10 +23,8 @@ import Firebase
     }
     
     override func applicationDidBecomeActive(_ application: UIApplication) {
-        NSLog("active")
-        if (!appRemote.isConnected) {
-            appRemote.connect()
-        }
+        
+        
     }
 
     
@@ -94,8 +92,10 @@ import Firebase
                      break
 
                 case "connect":
-                    NSLog("Connect")
-                    //self.startSpotify(open: URL)
+                    if (!self.appRemote.isConnected) {
+                        NSLog("active")
+                        self.appRemote.connect()
+                    }
                     break
                 case "play_song":
                     NSLog("Play Song")
@@ -132,6 +132,7 @@ import Firebase
         } else if let error_description = parameters?[SPTAppRemoteErrorDescriptionKey] {
             NSLog(error_description)
         }
+        self.subscribeToPlayerState()
   return true
 }
 
@@ -167,8 +168,12 @@ import Firebase
         NSLog(trackIdentifier)
         
         appRemote.authorizeAndPlayURI(trackIdentifier)
-        
-        
+    }
+    
+    private func subscribeToPlayerState() {
+        appRemote.playerAPI?.subscribe { (_, error) -> Void in
+            guard error == nil else { return }
+        }
     }
         
 }
