@@ -18,19 +18,16 @@ import Firebase
       NSLog("Spotify disconnected")
     }
 
-    
-    
     func playerStateDidChange(_ playerState: SPTAppRemotePlayerState) {
        NSLog("Spotify player state changed")
     }
     
     override func applicationDidBecomeActive(_ application: UIApplication) {
         NSLog("active")
-        appRemote.connect()
+        if (!appRemote.isConnected) {
+            appRemote.connect()
+        }
     }
-
-    
-
 
     
     private let clientIdentifier = "12e51e7fd567478db5db871585124355"
@@ -101,15 +98,18 @@ import Firebase
                     //self.startSpotify(open: URL)
                     break
                 case "play_song":
-                     NSLog("Play Song")
+                    NSLog("Play Song")
                      
-                     if let args = call.arguments as? [String] {
+                    if let args = call.arguments as? [String: Any] {
+                        NSLog(String(args.count))
                          if args.count == 1 {
-                            self.playTrack(args[0])
+                            self.playTrack(args["track"] as? String ?? "Error")
                          } else {
                             NSLog("Wrong arg count")
                         }
-                     }
+                     } else {
+                        NSLog("Error getting args")
+                    }
                 break
                 default:
                     NSLog("Error invalid method call")
@@ -164,7 +164,11 @@ import Firebase
     }
     
     public func playTrack(_ trackIdentifier: String) {
-        appRemote.playerAPI?.play(trackIdentifier, callback: defaultCallback)
+        NSLog(trackIdentifier)
+        
+        appRemote.authorizeAndPlayURI(trackIdentifier)
+        
+        
     }
         
 }
