@@ -8,6 +8,14 @@ import Firebase
     
     func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
         NSLog("Spotify connection established")
+        self.appRemote.playerAPI?.delegate = self
+        self.appRemote.playerAPI?.subscribe(toPlayerState: { (result, error) in
+            if let error = error {
+                debugPrint(error.localizedDescription)
+            }
+        })
+        self.appRemote.playerAPI?.setShuffle(false, callback: defaultCallback)
+        self.appRemote.playerAPI?.setRepeatMode(SPTAppRemotePlaybackOptionsRepeatMode.off, callback: defaultCallback)
     }
 
     func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
@@ -19,15 +27,34 @@ import Firebase
     }
 
     func playerStateDidChange(_ playerState: SPTAppRemotePlayerState) {
-       NSLog("Spotify player state changed")
+       debugPrint("Track name: %@", playerState.track.name)
+        invokeCurrentTrack(track: playerState.track)
+        invokeIsPaused(isPaused: playerState.isPaused)
     }
     
     override func applicationDidBecomeActive(_ application: UIApplication) {
-        
-        
+        if let _ = self.appRemote.connectionParameters.accessToken {
+            self.appRemote.connect()
+        }
+    }
+    
+    override func applicationWillResignActive(_ application: UIApplication) {
+        if self.appRemote.isConnected {
+            self.appRemote.disconnect()
+        }
+    }
+    
+    func invokeCurrentTrack(track: SPTAppRemoteTrack) {
+        let song:[String] = [track.name, track.artist.name, track.uri, track.imageIdentifier]
+        channel.invokeMethod("song", arguments: song)
+    }
+    
+    func invokeIsPaused(isPaused: Bool) {
+        channel.invokeMethod("isPaused",arguments: isPaused)
     }
 
-    
+    private var channel: FlutterMethodChannel!
+    private let CHANNEL: String = "dev.budde.spotify_queue"
     private let clientIdentifier = "12e51e7fd567478db5db871585124355"
     private let redirectUri = URL(string: "dev.budde.spotifyqueue://callback")!
     
@@ -60,8 +87,7 @@ import Firebase
         
         GeneratedPluginRegistrant.register(with: self)
         let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
-        let channel = FlutterMethodChannel(name: "dev.budde.spotify_queue",
-                                                        binaryMessenger: controller.binaryMessenger)
+        channel = FlutterMethodChannel(name: CHANNEL, binaryMessenger: controller.binaryMessenger)
         
             channel.setMethodCallHandler({
                (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
@@ -70,8 +96,12 @@ import Firebase
                 switch call.method {
                 case "play":
                     NSLog("Play")
-
-                    self.startPlayback()
+                    if (self.appRemote.isConnected) {
+                        self.startPlayback()
+                    } else {
+                        self.appRemote.authorizeAndPlayURI("")
+                        self.startPlayback()
+                    }
                     break
                 
                 case "pause":
@@ -92,10 +122,7 @@ import Firebase
                      break
 
                 case "connect":
-                    if (!self.appRemote.isConnected) {
-                        NSLog("active")
-                        self.appRemote.connect()
-                    }
+
                     break
                 case "play_song":
                     NSLog("Play Song")
@@ -132,7 +159,6 @@ import Firebase
         } else if let error_description = parameters?[SPTAppRemoteErrorDescriptionKey] {
             NSLog(error_description)
         }
-        self.subscribeToPlayerState()
   return true
 }
 
