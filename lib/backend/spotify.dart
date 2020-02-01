@@ -13,17 +13,18 @@ class Spotify {
   static Future<void> init() async {
 
     // if this is the first login
-    while (StorageUtil.getString('access_token') == '') {
+    if (StorageUtil.getString('access_token') == '') {
       await _requestAccessToken();
     }
 
 
-    while (StorageUtil.getString('username') == '') {
+    if (StorageUtil.getString('username') == '') {
       await _requestUsername();
     }
 
     // Check if the token has expired and reAuthenticate
     await checkTokenExpiration();
+    return;
   }
 
   static Future<void> checkTokenExpiration() async {
