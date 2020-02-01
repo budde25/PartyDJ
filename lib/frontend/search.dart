@@ -47,7 +47,7 @@ class _SearchState extends State<Search> {
                       border: OutlineInputBorder(),
                       labelText: 'Search for songs'),
                   onSubmitted: (search) => _search(search),
-                  autocorrect: true,
+                  autocorrect: false,
                 ),
               ),
               Expanded(
