@@ -5,7 +5,7 @@ import 'package:http/http.dart';
 
 class Spotify {
   static final String _clientID = '12e51e7fd567478db5db871585124355';
-  static final String _clientSecret = 'df6f32cde2e742ce94e842ec6657b89e';
+  static final String _clientSecret = '';
   static final String _callbackUrl = 'dev.budde.spotifyqueue';
 
   static final String _scope = 'user-read-private playlist-modify-public user-modify-playback-state streaming';
