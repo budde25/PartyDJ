@@ -7,7 +7,7 @@ the room code or joining via QR code.
 Available on Google [Play Store](https://play.google.com/store/apps/details?id=dev.budde.spotify_queue) and Apple [App Store](https://apps.apple.com/us/app/party-music-queue/id1497405326?ls=1).
 
 ## Server code
-[Firebase backend](https://github.com/budde25/queue-backend).
+[Party DJ Backend](https://github.com/budde25/queue-backend).
 
 ## Getting Started
 
