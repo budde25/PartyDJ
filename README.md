@@ -26,7 +26,7 @@ To build an Android release use  `flutter build apk` or `flutter build appbundle
 To buid an IOS release `flutter build ios`  
 
 ## Built With
-* [Firebase](https://firebase.google.com/) - the server side functions and database.  
+* [Firebase](https://firebase.google.com/) - Server side functions and database.  
 * [Flutter](https://flutter.dev/) - Cross platform framwork.  
 * [Spotify Web Api](https://developer.spotify.com/documentation/web-api/) - Spotify integration.  
 * [Spotify Android SDK](https://developer.spotify.com/documentation/android/) - Spotify integration.  
