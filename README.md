@@ -20,10 +20,10 @@ Android SDK (for android building).
 XCode (for ios builing).  
 
 ### Building
-To test the app in debug mode use `flutter run`.  
-To hot reload the app to see for instant code updates use 'r' while build in running.  
-To build an Android release use  `flutter build apk` or `flutter build appbundle`.  
-To buid an IOS release `flutter build ios`.  
+`flutter run` to test the app in debug mode.  
+`r` to hot reload the app to see for instant code updates use while build in running.  
+`flutter build apk` or `flutter build appbundle` to build an Android release.  
+`flutter build ios` to buid an IOS release.  
 
 ## Built With
 * [Firebase](https://firebase.google.com/) - Server side functions and database.  
