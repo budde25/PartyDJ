@@ -1,5 +1,6 @@
 # Party DJ
 
+[![BCH compliance](https://bettercodehub.com/edge/badge/budde25/PartyDJ?branch=master)](https://bettercodehub.com/)
 Party DJ is a cross platform app to manage group queues using spotify. The app allows for any number of people on any mobile platform
 controll and manage one single song queue. The user playing the music simply has to create a queue and other can join by either entering
 the room code or joining via QR code.
