@@ -19,7 +19,7 @@ Simply open the project in Android studio or another IDE of your choice.
 Dart must be installed.  
 Flutter must be installed.  
 Android SDK (for android building).  
-XCode (for ios builing).  
+XCode (for IOS builing).  
 
 ### Building
 `flutter run` to test the app in debug mode.  
