@@ -165,7 +165,7 @@ class JoinForm extends StatelessWidget {
                                 'queue': code.text,
                               });
                             } else {
-                              Navigator.pop(context);;
+                              Navigator.pop(context);
                             }
                           }
                         },

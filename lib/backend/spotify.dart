@@ -183,7 +183,7 @@ class Spotify {
   static Future<bool> startPlaylist() async {
     await _setRepeatOff();
     await _setShuffleOff();
-
+    return true;
   }
 
   static Future<bool> play() async {
