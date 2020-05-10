@@ -1,12 +1,11 @@
 # Party DJ
-
-[![BCH compliance](https://bettercodehub.com/edge/badge/budde25/PartyDJ?branch=master)](https://bettercodehub.com/)  
   
-Party DJ is a cross platform app to manage group queues using spotify. The app allows for any number of people on any mobile platform
-controll and manage one single song queue. The user playing the music simply has to create a queue and other can join by either entering
+Party DJ is a cross platform app to manage group queues using Spotify. The app allows for any number of people on any mobile platform
+control and manage one single song queue. The user playing the music simply has to create a queue and other can join by either entering
 the room code or joining via QR code.
 
-Available on Google [Play Store](https://play.google.com/store/apps/details?id=dev.budde.spotify_queue) and Apple [App Store](https://apps.apple.com/us/app/party-music-queue/id1497405326?ls=1).
+Available on Google [Play Store](https://play.google.com/store/apps/details?id=dev.budde.spotify_queue)
+and Apple [App Store](https://apps.apple.com/us/app/party-music-queue/id1497405326?ls=1).
 
 ## Server Code
 [Party DJ Backend](https://github.com/budde25/queue-backend).
@@ -19,13 +18,13 @@ Simply open the project in Android studio or another IDE of your choice.
 Dart must be installed.  
 Flutter must be installed.  
 Android SDK (for android building).  
-XCode (for IOS builing).  
+XCode (for IOS building).  
 
 ### Building
 `flutter run` to test the app in debug mode.  
 `r` to hot reload the app to see for instant code updates use while build in running.  
 `flutter build apk` or `flutter build appbundle` to build an Android release.  
-`flutter build ios` to buid an IOS release.  
+`flutter build ios` to build an IOS release.  
 
 ## Built With
 * [Firebase](https://firebase.google.com/) - Server side functions and database.  
