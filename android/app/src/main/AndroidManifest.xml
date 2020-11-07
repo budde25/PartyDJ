@@ -3,9 +3,12 @@
     package="dev.budde.spotify_queue">
 
     <application
-        android:name="io.flutter.app.FlutterApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="Party DJ">
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
 
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
@@ -23,9 +26,6 @@
                  there is no splash screen (such as the default splash screen
                  defined in @style/LaunchTheme).
             -->
-            <meta-data
-                android:name="io.flutter.app.android.SplashScreenUntilFirstFrame"
-                android:value="true" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

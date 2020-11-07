@@ -4,7 +4,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
-import io.flutter.app.FlutterActivity;
+import androidx.annotation.NonNull;
+
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugins.GeneratedPluginRegistrant;
+
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
@@ -29,42 +34,38 @@ public class MainActivity extends FlutterActivity{
     private static MethodChannel methodChannel;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        GeneratedPluginRegistrant.registerWith(this);
-
-        //login();
-        methodChannel = new MethodChannel(getFlutterView(), CHANNEL);
+    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+        GeneratedPluginRegistrant.registerWith(flutterEngine);
+        methodChannel = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL);
         methodChannel.setMethodCallHandler(
-                (call, result) -> {
-                    // Note: this method is invoked on the main thread.
-                    switch (call.method) {
-                        case ("play_song"):
-                            playSong(call.argument("track"));
-                            break;
-                        case ("play"):
-                            play();
-                            break;
-                        case ("pause"):
-                            pause();
-                            break;
-                        case ("skip_next"):
-                            skipNext();
-                            break;
-                        case ("skip_previous"):
-                            skipPrevious();
-                            break;
-                        case ("connect"):
-                            if (mSpotifyAppRemote == null || !mSpotifyAppRemote.isConnected()) {
-                                Log.d("d","a");
-                                connectSpotify();
-                            }
-                            break;
-                        default:
-                            Log.e("Error", "invalid method: " + call.method);
-                    }
-                });
-
+                    (call, result) -> {
+                        // Note: this method is invoked on the main thread.
+                        switch (call.method) {
+                            case ("play_song"):
+                                playSong(call.argument("track"));
+                                break;
+                            case ("play"):
+                                play();
+                                break;
+                            case ("pause"):
+                                pause();
+                                break;
+                            case ("skip_next"):
+                                skipNext();
+                                break;
+                            case ("skip_previous"):
+                                skipPrevious();
+                                break;
+                            case ("connect"):
+                                if (mSpotifyAppRemote == null || !mSpotifyAppRemote.isConnected()) {
+                                    Log.d("d","a");
+                                    connectSpotify();
+                                }
+                                break;
+                            default:
+                                Log.e("Error", "invalid method: " + call.method);
+                        }
+                    });
     }
 
     private void connectSpotify() {
